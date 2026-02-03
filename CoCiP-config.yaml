@@ -1,0 +1,63 @@
+# CoCiP standalone program configuration
+
+# Simulation duration (m)
+duration_m: 600
+
+# Evolution time step (s)
+dt_s: 60
+
+# Output save interval (m)
+save_interval_m: 10
+
+# Day of the year including time of day (as decimal)
+dayOfYear: 180.5
+
+# Longitude (degrees)
+longitude: 0
+
+# Latitude (degrees)
+latitude: 0
+
+# Formation altitude (m)
+z0: 10e3
+
+# Pressure at z0 (Pa)
+P0: 20e3
+
+# Temperature at z0 (K)
+T0: 215
+
+# Lapse rate (K m-1) - rate of decrease of temeperature with altitude
+lapse_rate: 6.5e-3
+
+# RH with respect to ice in layer around z0 ()
+rh_i1: 1.10
+
+# RH with respect to ice in background ()
+rh_i0: 0.90
+
+# Depth of layer above and below z0 (m) - i.e. whole layer is 2*D1
+D1: 1000
+
+# Depth of transition layer (m)
+DT: 0
+
+# Cross track wind shear (s-1)
+ds_dz: 0.004
+
+# Top of atmosphere net solar radiation (W m-2)
+tnsr: 1000
+
+# Outgoing longwave radiation (W m-2)
+olr: 240
+
+# Flight inputs
+engine_efficiency: 0.3
+ei_h2o: 1.25
+q_fuel: 43.15e6
+aircraft_mass: 70e3
+wingspan: 34
+true_airspeed: 250
+fuel_flow: 0.7
+T_exhaust: 600
+nvpm_ei_n: 1e15

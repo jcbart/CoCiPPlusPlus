@@ -1,0 +1,41 @@
+# CoCiP runtime parameters
+
+# For definitions, see
+# https://github.com/contrailcirrus/pycontrails/blob/main/pycontrails/models/cocip/cocip_params.py
+# "None" fields should be "null", "~", or omitted from the yaml
+
+initial_wake_vortex_depth: 0.5
+
+sedimentation_impact_factor: 0.5
+
+wind_shear_enhancement_exponent: 0.5
+
+min_ice_particle_number_nvpm_ei_n: 1e13
+
+max_depth: 1500
+
+max_horizontal_diffusivity: 
+
+max_vertical_diffusivity: 
+
+radius_threshold_um: [5.0, 9.5, 23.0, 190.0, 310.0]
+
+habit_distributions:
+  - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+  - [0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.7, 0.0]
+  - [0.0, 0.3, 0.0, 0.0, 0.3, 0.0, 0.4, 0.0]
+  - [0.0, 0.5, 0.0, 0.0, 0.15, 0.35, 0.0, 0.0]
+  - [0.0, 0.45, 0.45, 0.1, 0.0, 0.0, 0.0, 0.0]
+  - [0.0, 0.0, 0.0, 0.03, 0.97, 0.0, 0.0, 0.0]
+
+rf_sw_enhancement_factor: 1
+
+rf_lw_enhancement_factor: 1
+
+min_tau: 1e-6
+
+max_tau: 1e10
+
+min_n_ice_per_m3: 1e3
+
+max_n_ice_per_m3: 1e20
