@@ -34,3 +34,16 @@ target_compile_features(CoCiP PRIVATE cxx_std_11)
 target_compile_options(CoCiP PRIVATE
     -Wall -Wextra
 )
+
+# Copy default input files if they do not already exist in build directory
+set(INPUT_FILES "CoCiP-config.yaml" "CoCiP-params.yaml")
+
+foreach(FILE_NAME ${INPUT_FILES})
+    if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}")
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/inputs/${FILE_NAME}.default"
+            "${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}"
+            COPYONLY
+        )
+    endif()
+endforeach()

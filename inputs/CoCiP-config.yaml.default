@@ -4,7 +4,7 @@
 duration_m: 600
 
 # Evolution time step (s)
-dt_s: 60
+dt_s: 600
 
 # Output save interval (m)
 save_interval_m: 10
