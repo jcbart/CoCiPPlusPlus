@@ -168,12 +168,7 @@ void CoCiP::calc_radiative_properties() {
 }
 
 void CoCiP::process_downwash_flight() {
-    // _create_downwash_contrail not required
-    // calc_continuous not required (do not need to know segment chain)
-    // calc_timestep_geometry not required (sin_a, cos_a updated externally)
-
-    update_met_calculations(); // equivalent of calc_timestep_meteorology
-    // Not needed: calc_shortwave_radiation or calc_outgoing_longwave_radiation
+    update_met_calculations();
     calc_contrail_properties();
     calc_radiative_properties();
 }
@@ -261,7 +256,7 @@ void CoCiP::evolve(const double length_ratio, const double a, const double dt_s)
     // calc_timestep_contrail_evolution to better suit the order of calculations
     altitude = contrail_properties::altitude_after_settling(altitude, terminal_fall_speed, dt_s);
 
-    update_met_calculations(); // equivalent of calc_timestep_meteorology
+    update_met_calculations();
 
     calc_timestep_contrail_evolution(length_ratio, dt_s);
 
