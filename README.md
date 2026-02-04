@@ -42,9 +42,11 @@ The project can be compiled in debug mode by specifying `cmake .. -DCMAKE_BUILD_
 
 Successful compilation will create an executable named `CoCiP`.
 
+If they do not already exist, CMake will copy the default input files `CoCiP-config.yaml` and `CoCiP-params.yaml` to the build directory.
+
 ## Execution
 
-Runtime configuration options can be specified in `CoCiP-config.yaml`. Parameters can be specified in `CoCiP-params.yaml`. These files must be copied or linked to the same directory as the `CoCiP` executable.
+Runtime configuration options can be specified in `CoCiP-config.yaml`. Parameters can be specified in `CoCiP-params.yaml`. These files must be in the same directory as the `CoCiP` executable.
 
 Run the program with the command `./CoCiP`.
 
