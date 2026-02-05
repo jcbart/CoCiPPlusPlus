@@ -35,8 +35,8 @@ double iwc_adiabatic_heating(double air_temperature_pre_vortex,
 constexpr double temperature_adiabatic_heating(double air_temperature_pre_vortex,
     double air_pressure_pre_vortex, double air_pressure_post_vortex) {
     
-    return std::pow(
-        air_temperature_pre_vortex * (air_pressure_post_vortex / air_pressure_pre_vortex),
+    return air_temperature_pre_vortex * std::pow(
+        (air_pressure_post_vortex / air_pressure_pre_vortex),
         (constants::GAMMA - 1) / constants::GAMMA
     );
 }
