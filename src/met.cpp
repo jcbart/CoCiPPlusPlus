@@ -37,8 +37,8 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
         sin_a, dz_m);
     
     // Wind shear enhancement (in calc_contrail_properties in pycontrails)
-    double shear_enhancement = wind_shear::wind_shear_enhancement_factor(depth, dz_m,
-        params->wind_shear_enhancement_exponent);
+    double shear_enhancement = wind_shear::wind_shear_enhancement_factor(depth,
+        effective_vertical_resolution, params->wind_shear_enhancement_exponent);
     ds_dz *= shear_enhancement;
     dsn_dz *= shear_enhancement;
 
@@ -88,6 +88,7 @@ void ArrayMet<arrayType>::get_local_values(double altitude) {
     u_wind_lower = U[k_lower];
     v_wind_lower = V[k_lower];
     ciwc = CIWC[k];
+    effective_vertical_resolution = Z[k] - Z[k_lower];
     dz_m = Z[k] - Z[k_lower];
 }
 
@@ -152,6 +153,7 @@ SimpleMet::SimpleMet(double z0, double P0, double T0, double lapse_rate, double 
     this->D1 = D1;
     this->DT = DT;
     this->ds_dz_cross_track = ds_dz;
+    effective_vertical_resolution = 0;
     dz_m = 100; // Value for calculating _lower variables
 }
 

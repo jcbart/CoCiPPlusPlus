@@ -36,10 +36,9 @@ void CoCiP::simulate_wake_vortex_downwash() {
     update_met_calculations();
 
     // Initial contrail width, depth, and downward displacement
-    // Use distance between grid cell centre and grid cell centre below as effective_vertical_resolution
     double dz_max = wake_vortex::max_downward_displacement(wingspan, true_airspeed, aircraft_mass,
-        met->air_temperature, met->dtheta_dz, met->ds_dz, met->air_pressure, met->dz_m,
-        params->wind_shear_enhancement_exponent);
+        met->air_temperature, met->dtheta_dz, met->ds_dz, met->air_pressure,
+        met->effective_vertical_resolution, params->wind_shear_enhancement_exponent);
 
     width = wake_vortex::initial_contrail_width(wingspan);
     depth = wake_vortex::initial_contrail_depth(dz_max, params->initial_wake_vortex_depth);

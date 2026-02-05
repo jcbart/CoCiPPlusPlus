@@ -26,6 +26,7 @@ struct IMet {
     double u_wind_lower; // Eastward wind (m s-1) at grid cell below
     double v_wind_lower; // Northward wind (m s-1) at grid cell below
     double ciwc; // Cloud ice water mixing ratio (kg (kg dry air)-1)
+    double effective_vertical_resolution; // Effective vertical resolution of met data (m)
     double dz_m; // Difference in altitude between centre of contrail grid cell and grid cell below (m)
 
     // Values calculated

@@ -66,7 +66,7 @@ constexpr double rh_i(double q, double T, double P) {
 
 // Calculate potential temperature (K)
 constexpr double T_potential(double T, double P) {
-    return std::pow(T * (constants::P_SURFACE / P), constants::R_d / constants::c_pd);
+    return T * std::pow(constants::P_SURFACE / P, constants::R_d / constants::c_pd);
 }
 
 // Calculate the potential temperature gradient (K m-1) between two altitudes
