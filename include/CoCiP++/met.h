@@ -14,25 +14,28 @@ struct IMet {
 
     // Values taken from vertical arrays
     double air_pressure; // Pressure (Pa)
-    double air_pressure_old; // Pressure at last time step (Pa)
-    double air_temperature; // Temperature inside contrail (K) (= temperature from met + cumul_heat)
-    double air_temperature_old; // Temperature inside contrail at last time step (K)
+    double air_temperature; // Air temperature (K)
     double specific_humidity; // Specific humidity of water vapor (kg (kg moist air)-1)
-    double specific_humidity_old; // Specific humidity of water vapor at last time step (kg (kg moist air)-1)
     double u_wind; // Eastward wind (m s-1)
     double v_wind; // Northward wind (m s-1)
+    double ciwc; // Cloud ice water mixing ratio (kg (kg dry air)-1)
+
+    double air_pressure_old; // Pressure at last time step (Pa)
+    double air_temperature_old; // Temperature inside contrail at last time step (K)
+    double specific_humidity_old; // Specific humidity of water vapor at last time step (kg (kg moist air)-1)
+
     double air_pressure_lower; // Pressure (Pa) at altitude - dz_m (i.e. grid cell below)
     double air_temperature_lower; // Temperature (K) at grid cell below
     double u_wind_lower; // Eastward wind (m s-1) at grid cell below
     double v_wind_lower; // Northward wind (m s-1) at grid cell below
-    double ciwc; // Cloud ice water mixing ratio (kg (kg dry air)-1)
+
     double effective_vertical_resolution; // Effective vertical resolution of met data (m)
     double dz_m; // Difference in altitude between centre of contrail grid cell and grid cell below (m)
 
     // Values calculated
     double dtheta_dz = 0; // Potential temperature gradient (K m-1) (dT_dz in pycontrails)
     double ds_dz = 0; // Wind shear (m s-1 m-1)
-    double dsn_dz = 0; // Wind shear normal (m s-1 m-1) (NB: is incorrect before CoCiP::evolve is first called because heading has not been set, but is not needed)
+    double dsn_dz = 0; // Wind shear normal (m s-1 m-1)
     double rho_air = 0; // Dry air mass (kg m-3)
     double rh_i = 0; // Relative humidity w.r.t. ice as a decimal (not percentage)
     double tau_cirrus = 0; // Optical depth of cirrus above the contrail
@@ -106,7 +109,7 @@ struct SimpleMet : public IMet {
     double ds_dz_cross_track;
 
     SimpleMet(double z0, double P0, double T0, double lapse_rate, double rh_i1, double rh_i0,
-        double D1, double DT, double ds_dz);
+        double D1, double DT, double ds_dz_cross_track);
 
 private:
     void get_local_values(double altitude) override;

@@ -108,9 +108,10 @@ public:
     void initial_properties();
 
     // Initialise and calculate properties of a contrail which survives the downwash vortex
+    // a is angle in degrees between segment and longitudinal axis (to update heading)
     // Similar to pycontrails' _process_downwash_flight
     // Must be called externally once
-    void process_downwash_flight();
+    void process_downwash_flight(const double a);
 
     // Evolve contrail by time step dt (s)
     // Advection through the time step should have already occurred giving

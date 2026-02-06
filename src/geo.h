@@ -52,7 +52,7 @@ constexpr double solar_hour_angle(double longitude, double hour, double theta_ra
 
 // Calculate the cosine of the solar zenith angle (radians)
 inline double cosine_solar_zenith_angle(double longitude, double latitude, double dayOfYear, double theta_rad) {
-    double hour = dayOfYear - std::floor(dayOfYear);
+    double hour = 24 * (dayOfYear - std::floor(dayOfYear));
     double lat_rad = constants::RAD_PER_DEG * latitude;
     double sdec_rad = constants::RAD_PER_DEG * solar_declination_angle(theta_rad);
     double sha_rad = constants::RAD_PER_DEG * solar_hour_angle(longitude, hour, theta_rad);

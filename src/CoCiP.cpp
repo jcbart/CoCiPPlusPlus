@@ -57,9 +57,6 @@ void CoCiP::initial_properties() {
 
     // Ignoring humidity scaling
 
-    //double q_sat = thermo::q_sat_ice(met->air_temperature, met->air_pressure);
-    //double rho_air = thermo::rho_d(met->air_temperature, met->air_pressure);
-
     // Uses pre-vortex values
     double iwc_pre_vortex = contrail_properties::initial_iwc(air_temperature_pre_vortex,
         specific_humidity_pre_vortex, air_pressure_pre_vortex, fuel_dist, width, depth, ei_h2o);
@@ -131,13 +128,13 @@ void CoCiP::calc_contrail_properties() {
     double theta_rad = geo::orbital_position(dayOfYear);
     double sd0 = geo::solar_constant(theta_rad);
     heat_rate = radiative_heating::heating_rate(met->air_temperature, met->rh_i, met->rho_air,
-        r_ice_vol, depth_eff,tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr, met->olr);
+        r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr, met->olr);
     d_heat_rate = radiative_heating::differential_heating_rate(met->air_temperature, met->rh_i,
         met->rho_air, r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr,
         met->olr);
     double eff_heat_rate = radiative_heating::effective_heating_rate(d_heat_rate,
         cumul_differential_heat, met->dtheta_dz, depth);
-
+    
     diffuse_v = contrail_properties::vertical_diffusivity(met->air_pressure, met->air_temperature,
         met->dtheta_dz, depth_eff, terminal_fall_speed, params->sedimentation_impact_factor,
         eff_heat_rate, params->max_vertical_diffusivity);
@@ -166,7 +163,8 @@ void CoCiP::calc_radiative_properties() {
     rf_net = radiative_forcing::net_radiative_forcing(rf_lw_scaled, rf_sw_scaled);
 }
 
-void CoCiP::process_downwash_flight() {
+void CoCiP::process_downwash_flight(const double a) {
+    set_heading(a);
     update_met_calculations();
     calc_contrail_properties();
     calc_radiative_properties();
@@ -208,15 +206,19 @@ void CoCiP::plume_temporal_evolution(const double length_ratio, const double dt_
 }
 
 void CoCiP::calc_timestep_contrail_evolution(const double length_ratio, const double dt_s) {
+    // Altitude is updated here to better suit the order of calculations
+    altitude = contrail_properties::altitude_after_settling(altitude, terminal_fall_speed, dt_s);
 
-    // Radiative heating
+    // Update plume parameters including width, depth, and area_eff
+    // Like pycontrails, uses the values from previous time step
+    plume_temporal_evolution(length_ratio, dt_s);
+    
+    // Calculate new cumulative heat before finding new temperature
     // Like pycontrails, uses heat rates from previous time step
     cumul_heat = std::min(1.5, cumul_heat + heat_rate * dt_s);
     cumul_differential_heat -= d_heat_rate * dt_s;
 
-    // Update plume parameters including width, depth, and area_eff
-    // Like pycontrails, uses the values of diffuse_h/_v from previous time step
-    plume_temporal_evolution(length_ratio, dt_s);
+    update_met_calculations();
 
     // Calculate new plume mass per distance using new area_eff and rho_air
     double plume_mass_per_m_new = contrail_properties::plume_mass_per_distance(area_eff,
@@ -224,10 +226,9 @@ void CoCiP::calc_timestep_contrail_evolution(const double length_ratio, const do
     
     double q_sat = thermo::q_sat_ice(met->air_temperature, met->air_pressure);
     double q_sat_old = thermo::q_sat_ice(met->air_temperature_old, met->air_pressure_old);
-    // The q_sat calculations should use temperature inside the contrail, as they do,
-    // but the iwc calculation should use ambient specific humidity, i.e. with ambient temperature
     double iwc_new = contrail_properties::new_ice_water_content(iwc, met->specific_humidity_old,
         met->specific_humidity, q_sat_old, q_sat, plume_mass_per_m, plume_mass_per_m_new);
+    
     double n_ice_per_m_new = contrail_properties::new_ice_particle_number(n_ice_per_m, dn_dt_agg,
         dn_dt_turb, length_ratio, dt_s);
     
@@ -250,12 +251,6 @@ void CoCiP::evolve(const double length_ratio, const double a, const double dt_s)
     // Set heading angle; required for calculating wind shear normal used in
     // plume_temporal_evolution 
     set_heading(a);
-
-    // Altitude is updated here before update_met_calculations rather than in
-    // calc_timestep_contrail_evolution to better suit the order of calculations
-    altitude = contrail_properties::altitude_after_settling(altitude, terminal_fall_speed, dt_s);
-
-    update_met_calculations();
 
     calc_timestep_contrail_evolution(length_ratio, dt_s);
 

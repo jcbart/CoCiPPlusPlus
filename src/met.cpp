@@ -22,7 +22,6 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
     // Get met type-derived values
     get_local_values(altitude);
 
-    // Adjust temperature inside contrail
     air_temperature += cumul_heat;
 
     // Potential temperature gradient
@@ -142,7 +141,7 @@ void ArrayMet<arrayType>::deletePtr(arrayType* ptr) {
 // SimpleMet
 
 SimpleMet::SimpleMet(double z0, double P0, double T0, double lapse_rate, double rh_i1,
-    double rh_i0, double D1, double DT, double ds_dz) {
+    double rh_i0, double D1, double DT, double ds_dz_cross_track) {
     
     this->z0 = z0;
     this->P0 = P0;
@@ -152,7 +151,7 @@ SimpleMet::SimpleMet(double z0, double P0, double T0, double lapse_rate, double 
     this->rh_i0 = rh_i0;
     this->D1 = D1;
     this->DT = DT;
-    this->ds_dz_cross_track = ds_dz;
+    this->ds_dz_cross_track = ds_dz_cross_track;
     effective_vertical_resolution = 0;
     dz_m = 100; // Value for calculating _lower variables
 }
@@ -175,18 +174,20 @@ void SimpleMet::get_local_values(double altitude) {
     );
 
     // This is calculated in reverse from specific_humidity immediately afterwards in calc_variables
+    // except using air_temperature + cumul_heat
+    double rh_i_temp;
     if (std::abs(altitude - z0) < D1) {
-        rh_i = rh_i1;
+        rh_i_temp = rh_i1;
     }
     else if (std::abs(altitude - z0) < D1 + DT) {
         // Check this
-        rh_i = rh_i1 + (std::abs(altitude - z0) - D1) * (rh_i0 - rh_i1) / DT;
+        rh_i_temp = rh_i1 + (std::abs(altitude - z0) - D1) * (rh_i0 - rh_i1) / DT;
     }
     else {
-        rh_i = rh_i0;
+        rh_i_temp = rh_i0;
     }
 
-    specific_humidity = rh_i * thermo::q_sat_ice(air_temperature, air_pressure);
+    specific_humidity = rh_i_temp * thermo::q_sat_ice(air_temperature, air_pressure);
 
     u_wind = 0;
     v_wind = 0;

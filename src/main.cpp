@@ -153,7 +153,7 @@ int main() {
         exit(EXIT_SUCCESS);
     }
 
-    cocip.process_downwash_flight();
+    cocip.process_downwash_flight(0);
     
     write_to_csv(cocip, 0, true);
 
