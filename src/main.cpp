@@ -39,8 +39,8 @@ struct Config {
     double T_exhaust;
     double nvpm_ei_n;
 
-    void readYAML() {
-        YAML::Node node = YAML::LoadFile("CoCiP-config.yaml");
+    void readYAML(std::string& configPath) {
+        YAML::Node node = YAML::LoadFile(configPath);
 
         duration_m = node["duration_m"].as<double>();
         dt_s = node["dt_s"].as<double>();
@@ -93,14 +93,22 @@ void write_to_csv(CoCiP& cocip, double time_elapsed_m, bool first_write) {
 }
 
 // CoCiP standalone program
-int main() {
+int main(int argc, char* argv[]) {
+    std::string msg;
     
     CoCiP_LogWrite("Program starting");
 
+    // Read config file path
+    std::string configPath = "CoCiP-config.yaml";
+    if (argc > 1) {
+        configPath = argv[1];
+    }
+
     // Read config containing start/stop/dt plus flight inputs
-    CoCiP_LogWrite("Reading config");
+    msg = std::string("Reading config file: ") + configPath;
+    CoCiP_LogWrite(msg);
     Config config;
-    config.readYAML();
+    config.readYAML(configPath);
 
     CoCiP cocip;
 
@@ -172,7 +180,7 @@ int main() {
         }
 
         if (!cocip.persistent) {
-            std::string msg = "Not persistent at " + std::to_string(time_elapsed_m) + " m";
+            msg = "Not persistent at " + std::to_string(time_elapsed_m) + " m";
             CoCiP_LogWrite(msg);
             exit(EXIT_SUCCESS);
         }

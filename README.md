@@ -55,9 +55,9 @@ If they do not already exist, CMake will copy the default input files `CoCiP-con
 
 ## Standalone execution
 
-Runtime configuration options can be specified in `CoCiP-config.yaml`. Parameters can be specified in `CoCiP-params.yaml`. These files must be in the same directory as the `CoCiP` executable.
+Runtime configuration options can be specified in `CoCiP-config.yaml`. Parameters can be specified in `CoCiP-params.yaml`. These files must be in the current working directory. Alternatively, a path to a YAML file containing configuration options can be specified in the command line.
 
-Run the program with the command `./CoCiP`.
+Run the program with the command `./CoCiP /optional/path/to/config`.
 
 Outputs are (currently) written to `cocip.out`.
 
