@@ -125,15 +125,19 @@ void CoCiP::calc_contrail_properties() {
         params->max_horizontal_diffusivity);
 
     // Radiative heating
-    double theta_rad = geo::orbital_position(dayOfYear);
-    double sd0 = geo::solar_constant(theta_rad);
-    heat_rate = radiative_heating::heating_rate(met->air_temperature, met->rh_i, met->rho_air,
-        r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr, met->olr);
-    d_heat_rate = radiative_heating::differential_heating_rate(met->air_temperature, met->rh_i,
-        met->rho_air, r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr,
-        met->olr);
-    double eff_heat_rate = radiative_heating::effective_heating_rate(d_heat_rate,
-        cumul_differential_heat, met->dtheta_dz, depth);
+    double eff_heat_rate = 0; // = 0 if radiative_heating_effects is false
+
+    if (params->radiative_heating_effects) {
+        double theta_rad = geo::orbital_position(dayOfYear);
+        double sd0 = geo::solar_constant(theta_rad);
+        heat_rate = radiative_heating::heating_rate(met->air_temperature, met->rh_i, met->rho_air,
+            r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr, met->olr);
+        d_heat_rate = radiative_heating::differential_heating_rate(met->air_temperature, met->rh_i,
+            met->rho_air, r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr,
+            met->rsr, met->olr);
+        eff_heat_rate = radiative_heating::effective_heating_rate(d_heat_rate,
+            cumul_differential_heat, met->dtheta_dz, depth);
+    }
     
     diffuse_v = contrail_properties::vertical_diffusivity(met->air_pressure, met->air_temperature,
         met->dtheta_dz, depth_eff, terminal_fall_speed, params->sedimentation_impact_factor,
@@ -215,7 +219,9 @@ void CoCiP::calc_timestep_contrail_evolution(const double length_ratio, const do
     
     // Calculate new cumulative heat before finding new temperature
     // Like pycontrails, uses heat rates from previous time step
-    cumul_heat = std::min(1.5, cumul_heat + heat_rate * dt_s);
+    if (params->radiative_heating_effects) {
+        cumul_heat = std::min(1.5, cumul_heat + heat_rate * dt_s);
+    }
     cumul_differential_heat -= d_heat_rate * dt_s;
 
     update_met_calculations();

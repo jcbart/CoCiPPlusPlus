@@ -37,6 +37,8 @@ void Params::readYAML() {
         ) ?
         node["max_vertical_diffusivity"].as<double>() : std::numeric_limits<double>::infinity();
 
+    radiative_heating_effects = node["radiative_heating_effects"].as<bool>();
+
     radius_threshold_um = node["radius_threshold_um"].as<std::vector<double>>();
 
     habit_distributions = node["habit_distributions"].as<std::vector<std::vector<double>>>();

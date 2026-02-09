@@ -18,6 +18,8 @@ max_horizontal_diffusivity:
 
 max_vertical_diffusivity: 
 
+radiative_heating_effects: false
+
 radius_threshold_um: [5.0, 9.5, 23.0, 190.0, 310.0]
 
 habit_distributions:

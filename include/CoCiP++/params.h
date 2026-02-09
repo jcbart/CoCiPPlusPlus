@@ -30,6 +30,9 @@ struct Params {
     // Set to nullptr to for no max
     double max_vertical_diffusivity;
 
+    // Radiative heating effects on contrail cirrus properties
+    bool radiative_heating_effects;
+
     std::vector<double> radius_threshold_um;
 
     std::vector<std::vector<double>> habit_distributions;
