@@ -76,17 +76,20 @@ void write_to_csv(CoCiP& cocip, double time_elapsed_m, bool first_write) {
 
     if (first_write) {
         file.open("cocip.out");
-        file << "Time (m), Altitude (m), Width (m), Depth (m), sigma_yz (m2), n_ice_per_m (# m-1), "
-             << "n_ice_per_m3 (# m-3), iwc (kg kg-1), r_ice_vol (m), Optical depth (), "
-             << "Cumulative heat (K), Ambient temperature (K), RHi ()\n";
+        file << "Time (m), Altitude (m), Width (m), Depth (m), sigma_yz (m2), n_ice_per_m3 (# m-3), "
+             << "n_ice_per_m (# m-1), IWC (kg kg-1), IWC (kg m-1), r_ice_vol (m), Optical depth (), "
+             << "Cumulative heat (K), Air temperature (K), RHi (), RF SW (W m-2), RF LW (W m-2), "
+             << "RF net (W m-2)\n";
     }
     else {
         file.open("cocip.out", std::ios::app);
     }
     file << time_elapsed_m << ", " << cocip.altitude << ", " << cocip.width << ", " << cocip.depth
-         << ", " << cocip.sigma_yz << ", " << cocip.n_ice_per_m << ", " << cocip.n_ice_per_vol
-         << ", " << cocip.iwc << ", " << cocip.r_ice_vol << ", " << cocip.tau_contrail << ", "
-         << cocip.cumul_heat << ", " << cocip.met->air_temperature << ", " << cocip.met->rh_i
+         << ", " << cocip.sigma_yz << ", " << cocip.n_ice_per_vol << ", " << cocip.n_ice_per_m
+         << ", " << cocip.iwc << ", " << cocip.iwc * cocip.met->rho_air * cocip.area_eff << ", "
+         << cocip.r_ice_vol << ", " << cocip.tau_contrail << ", " << cocip.cumul_heat << ", "
+         << cocip.met->air_temperature << ", " << cocip.met->rh_i << ", " << cocip.rf_sw << ", "
+         << cocip.rf_lw << ", " << cocip.rf_net
          << "\n";
     
     file.close();
