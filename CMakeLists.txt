@@ -20,10 +20,12 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
 # Submodules
 
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
-add_subdirectory(submodules/yaml-cpp EXCLUDE_FROM_ALL)
+if(NOT TARGET yaml-cpp)
+    set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+    set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
+    add_subdirectory(submodules/yaml-cpp EXCLUDE_FROM_ALL)
+endif()
 
 # Compilation config interface
 # (specifies settings for both library and executable)
