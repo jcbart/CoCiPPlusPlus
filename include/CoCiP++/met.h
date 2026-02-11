@@ -62,7 +62,7 @@ struct ArrayMet : public IMet {
 
     // Vertical arrays from met input
     int vsize = 0; // Unstaggered length of each vertical array
-    arrayType* T = nullptr; // Air temperature (K)
+    arrayType* T_pot = nullptr; // Potential air temperature (K)
     arrayType* P = nullptr; // Air pressure (Pa)
     arrayType* QV = nullptr; // Specific humidity of water vapor (kg (kg moist air)-1)
     arrayType* U = nullptr; // Eastward wind (m s-1)

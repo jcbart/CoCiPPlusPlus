@@ -64,9 +64,14 @@ constexpr double rh_i(double q, double T, double P) {
     return ((q * P) / (constants::EPSILON * e_sat_ice(T)));
 }
 
-// Calculate potential temperature (K)
+// Calculate potential temperature (K) given temperature (K) and air pressure (Pa)
 constexpr double T_potential(double T, double P) {
     return T * std::pow(constants::P_SURFACE / P, constants::R_d / constants::c_pd);
+}
+
+// Calculate temperature (K) given potential temperature (K) and air pressure (Pa)
+constexpr double T_from_T_potential(double T_pot, double P) {
+    return T_pot * std::pow(P / constants::P_SURFACE, constants::R_d / constants::c_pd);
 }
 
 // Calculate the potential temperature gradient (K m-1) between two altitudes

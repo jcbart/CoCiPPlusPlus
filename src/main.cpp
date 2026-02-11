@@ -86,7 +86,7 @@ void write_to_csv(CoCiP& cocip, double time_elapsed_m, bool first_write) {
     }
     file << time_elapsed_m << ", " << cocip.altitude << ", " << cocip.width << ", " << cocip.depth
          << ", " << cocip.sigma_yz << ", " << cocip.n_ice_per_vol << ", " << cocip.n_ice_per_m
-         << ", " << cocip.iwc << ", " << cocip.iwc * cocip.met->rho_air * cocip.area_eff << ", "
+         << ", " << cocip.iwc << ", " << cocip.iwc * cocip.plume_mass_per_m << ", "
          << cocip.r_ice_vol << ", " << cocip.tau_contrail << ", " << cocip.cumul_heat << ", "
          << cocip.met->air_temperature << ", " << cocip.met->rh_i << ", " << cocip.rf_sw << ", "
          << cocip.rf_lw << ", " << cocip.rf_net

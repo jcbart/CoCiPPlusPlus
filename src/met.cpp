@@ -61,7 +61,7 @@ template <typename arrayType>
 ArrayMet<arrayType>::ArrayMet(int vsize) {
     this->vsize = vsize;
 
-    T = new arrayType[vsize];
+    T_pot = new arrayType[vsize];
     P = new arrayType[vsize];
     QV = new arrayType[vsize];
     U = new arrayType[vsize];
@@ -75,15 +75,15 @@ template <typename arrayType>
 void ArrayMet<arrayType>::get_local_values(double altitude) {
     k = find_k_index(altitude);
 
-    k_lower = std::min(k-1, 0);
+    k_lower = std::max(k-1, 0);
 
     air_pressure = P[k];
-    air_temperature = T[k]; // cumul_heat is added in update_met_calculations
+    air_temperature = thermo::T_from_T_potential(T_pot[k], air_pressure);
     specific_humidity = QV[k];
     u_wind = U[k];
     v_wind = V[k];
     air_pressure_lower = P[k_lower];
-    air_temperature_lower = T[k_lower];
+    air_temperature_lower = thermo::T_from_T_potential(T_pot[k_lower], air_pressure_lower);
     u_wind_lower = U[k_lower];
     v_wind_lower = V[k_lower];
     ciwc = CIWC[k];
@@ -111,7 +111,11 @@ double ArrayMet<arrayType>::calc_tau_cirrus() const {
     double cumsum = 0;
     // Cirrus optical depth is defined as cirrus optical depth above the contrail
     for (int i = k; i < vsize; i++) {
-        double beta_e = tau_cirrus::cirrus_effective_extinction_coef(CIWC[i], T[i], P[i]);
+        double beta_e = tau_cirrus::cirrus_effective_extinction_coef(
+            CIWC[i],
+            thermo::T_from_T_potential(T_pot[i], P[i]),
+            P[i]
+        );
         double dz = tau_cirrus::height_to_geopt_height(Z_AT_W[i+1])
                     - tau_cirrus::height_to_geopt_height(Z_AT_W[i]);
         cumsum += beta_e * dz;
@@ -121,7 +125,7 @@ double ArrayMet<arrayType>::calc_tau_cirrus() const {
 
 template <typename arrayType>
 ArrayMet<arrayType>::~ArrayMet() {
-    deletePtr(T);
+    deletePtr(T_pot);
     deletePtr(P);
     deletePtr(QV);
     deletePtr(U);

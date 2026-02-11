@@ -33,7 +33,8 @@ constexpr double c_pv = 1870;
 // Molar mass of dry air (kg mol-1)
 constexpr double M_d = 28.9647e-3;
 
-// Ratio of specific heat capacity at constant pressure to that at constant volume for a diatomic ideal gas 
+// Ratio of specific heat capacity at constant pressure to that at constant volume for a diatomic
+// ideal gas 
 // Used in adiabatic heating
 constexpr double GAMMA = 1.4;
 
