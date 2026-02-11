@@ -12,7 +12,7 @@ struct IMet {
     double tnsr; // TOA net downward shortwave radiation (SDR - RSR) (W m-2)
     double olr; // TOA outgoing (upward) longwave radiation (W m-2)
 
-    // Values taken from vertical arrays
+    // Values taken from get_local_values
     double air_pressure; // Pressure (Pa)
     double air_temperature; // Air temperature (K)
     double specific_humidity; // Specific humidity of water vapor (kg (kg moist air)-1)
@@ -62,7 +62,7 @@ struct ArrayMet : public IMet {
 
     // Vertical arrays from met input
     int vsize = 0; // Unstaggered length of each vertical array
-    arrayType* T_pot = nullptr; // Potential air temperature (K)
+    arrayType* T_POT = nullptr; // Potential air temperature (K)
     arrayType* P = nullptr; // Air pressure (Pa)
     arrayType* QV = nullptr; // Specific humidity of water vapor (kg (kg moist air)-1)
     arrayType* U = nullptr; // Eastward wind (m s-1)
