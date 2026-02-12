@@ -11,6 +11,7 @@ endif()
 option(COCIP_BUILD_EXECUTABLE "Build a standalone executable" ON)
 
 message(STATUS "--------------------------------------------")
+message(STATUS "CoCiP++")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Build a standalone executable: ${COCIP_BUILD_EXECUTABLE}")
 message(STATUS "--------------------------------------------")
