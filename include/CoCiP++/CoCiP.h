@@ -3,10 +3,10 @@
 
 // Forward declarations
 
-struct IMet;
 struct Params;
 
 // Class for a single CoCiP instance
+template <typename MetType>
 class CoCiP {
 private:
     // Find met variables derived from met inputs
@@ -40,8 +40,8 @@ private:
     void plume_temporal_evolution(const double length_ratio, const double dt_s);
 
 public:
-    // Meteorology from input
-    IMet* met;
+    // Pointer to meteorology object (derived IMet struct)
+    MetType* met;
 
     // Pointer to params
     Params* params;

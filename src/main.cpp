@@ -71,7 +71,8 @@ struct Config {
     }
 };
 
-void write_to_csv(CoCiP& cocip, double time_elapsed_m, bool first_write) {
+template <typename MetType>
+void write_to_csv(CoCiP<MetType>& cocip, double time_elapsed_m, bool first_write) {
     std::ofstream file;
 
     if (first_write) {
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]) {
     Config config;
     config.readYAML(configPath);
 
-    CoCiP cocip;
+    CoCiP<SimpleMet> cocip;
 
     // Give pointer to Params object and read YAML
     CoCiP_LogWrite("Reading params");

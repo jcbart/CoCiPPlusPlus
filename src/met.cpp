@@ -56,6 +56,7 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
 
 // Types to compile
 template struct ArrayMet<float>;
+template struct ArrayMet<double>;
 
 template <typename arrayType>
 ArrayMet<arrayType>::ArrayMet(int vsize) {

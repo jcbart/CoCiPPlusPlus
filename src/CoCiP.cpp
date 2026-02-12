@@ -15,7 +15,13 @@
 #include "geo.h"
 #include "CoCiPLog.h"
 
-void CoCiP::formation() {
+// Types to compile
+template class CoCiP<SimpleMet>;
+template class CoCiP<ArrayMet<float>>;
+template class CoCiP<ArrayMet<double>>;
+
+template <typename MetType>
+void CoCiP<MetType>::formation() {
     // Calculate local met variables
     update_met_calculations();
     double G = sac::slope_mixing_line(met->specific_humidity, met->air_pressure, engine_efficiency,
@@ -32,7 +38,8 @@ void CoCiP::formation() {
     T_crit_sac = sac::T_critical_sac(T_sat_liq, rh, G);
 }
 
-void CoCiP::simulate_wake_vortex_downwash() {
+template <typename MetType>
+void CoCiP<MetType>::simulate_wake_vortex_downwash() {
     update_met_calculations();
 
     // Initial contrail width, depth, and downward displacement
@@ -44,7 +51,8 @@ void CoCiP::simulate_wake_vortex_downwash() {
     depth = wake_vortex::initial_contrail_depth(dz_max, params->initial_wake_vortex_depth);
 }
 
-void CoCiP::initial_properties() {
+template <typename MetType>
+void CoCiP<MetType>::initial_properties() {
     double fuel_dist = fuel_flow / true_airspeed; // (kg m-1)
     altitude -= 0.5 * depth;
 
@@ -95,18 +103,21 @@ void CoCiP::initial_properties() {
     // Persistent => is downwash flight
 }
 
-void CoCiP::set_heading(const double a) {
+template <typename MetType>
+void CoCiP<MetType>::set_heading(const double a) {
     double a_rad = constants::RAD_PER_DEG * a;
     sin_a = std::sin(a_rad);
     cos_a = std::cos(a_rad);
 }
 
-void CoCiP::update_met_calculations() {
+template <typename MetType>
+void CoCiP<MetType>::update_met_calculations() {
     met->calc_variables(altitude, cumul_heat, depth, cos_a, sin_a, longitude, latitude, dayOfYear,
         params);
 }
 
-void CoCiP::calc_contrail_properties() {
+template <typename MetType>
+void CoCiP<MetType>::calc_contrail_properties() {
     // Shear enhancement moved to met->calc_variables
 
     area_eff = contrail_properties::plume_effective_cross_sectional_area(width, depth, sigma_yz);
@@ -149,7 +160,8 @@ void CoCiP::calc_contrail_properties() {
         diffuse_h, diffuse_v);
 }
 
-void CoCiP::calc_radiative_properties() {
+template <typename MetType>
+void CoCiP<MetType>::calc_radiative_properties() {
     double theta_rad = geo::orbital_position(dayOfYear);
     double sd0 = geo::solar_constant(theta_rad);
 
@@ -167,14 +179,16 @@ void CoCiP::calc_radiative_properties() {
     rf_net = radiative_forcing::net_radiative_forcing(rf_lw_scaled, rf_sw_scaled);
 }
 
-void CoCiP::process_downwash_flight(const double a) {
+template <typename MetType>
+void CoCiP<MetType>::process_downwash_flight(const double a) {
     set_heading(a);
     update_met_calculations();
     calc_contrail_properties();
     calc_radiative_properties();
 }
 
-void CoCiP::plume_temporal_evolution(const double length_ratio, const double dt_s) {
+template <typename MetType>
+void CoCiP<MetType>::plume_temporal_evolution(const double length_ratio, const double dt_s) {
     double sigma_yy = 0.125 * width*width;
     double sigma_zz = 0.125 * depth*depth;
     double max_sigma_zz = 0.125 * params->max_depth*params->max_depth;
@@ -209,7 +223,8 @@ void CoCiP::plume_temporal_evolution(const double length_ratio, const double dt_
     area_eff = contrail_properties::new_effective_area_from_sigma(sigma_yy, sigma_zz, sigma_yz);
 }
 
-void CoCiP::calc_timestep_contrail_evolution(const double length_ratio, const double dt_s) {
+template <typename MetType>
+void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio, const double dt_s) {
     // Altitude is updated here to better suit the order of calculations
     altitude = contrail_properties::altitude_after_settling(altitude, terminal_fall_speed, dt_s);
 
@@ -251,7 +266,8 @@ void CoCiP::calc_timestep_contrail_evolution(const double length_ratio, const do
     // No energy forcing because requires length, can be calculated externally if desired
 }
 
-void CoCiP::evolve(const double length_ratio, const double a, const double dt_s) {
+template <typename MetType>
+void CoCiP<MetType>::evolve(const double length_ratio, const double a, const double dt_s) {
     // calc_continuous not required (do not need to know segment chain)
     
     // Set heading angle; required for calculating wind shear normal used in
