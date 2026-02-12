@@ -11,7 +11,12 @@ struct Config {
     double save_interval_m;
 
     // Time and location
-    double dayOfYear;
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    float seconds;
     double longitude;
     double latitude;
 
@@ -45,7 +50,12 @@ struct Config {
         duration_m = node["duration_m"].as<double>();
         dt_s = node["dt_s"].as<double>();
         save_interval_m = node["save_interval_m"].as<double>();
-        dayOfYear = node["dayOfYear"].as<double>();
+        year = node["year"].as<int>();
+        month = node["month"].as<int>();
+        day = node["day"].as<int>();
+        hour = node["hour"].as<int>();
+        minute = node["minute"].as<int>();
+        seconds = node["seconds"].as<float>();
         longitude = node["longitude"].as<double>();
         latitude = node["latitude"].as<double>();
         z0 = node["z0"].as<double>();
@@ -129,8 +139,15 @@ int main(int argc, char* argv[]) {
     cocip.met->tnsr = config.tnsr;
     cocip.met->olr = config.olr;
 
-    // Give dayOfYear and location
-    cocip.dayOfYear = config.dayOfYear;
+    // Give datetime and location
+    cocip.datetime.set(
+        config.year,
+        config.month,
+        config.day,
+        config.hour,
+        config.minute,
+        config.seconds
+    );
     cocip.altitude = config.z0;
     cocip.longitude = config.longitude;
     cocip.latitude = config.latitude;
@@ -193,7 +210,7 @@ int main(int argc, char* argv[]) {
     /*
     General loop:
     - "Advect" - altitude for advection should take into account that CoCiP::altitude is updated by initial_properties and evolve
-    - Update dayOfYear, longitude, and latitude
+    - Update datetime, longitude, and latitude
     - Update meteorology slices plus tnsr and olr in met
     - Call evolve
     */

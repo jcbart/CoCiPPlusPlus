@@ -3,6 +3,7 @@
 
 // Forward declaration
 struct Params;
+struct CoCiPTime;
 
 // Virtual struct to hold meteorological inputs to CoCiP and variables derived from them
 // Is derived in child types depending on met calculation method
@@ -45,7 +46,7 @@ struct IMet {
     virtual ~IMet() = default;
 
     void calc_variables(double altitude, double cumul_heat, double depth, double cos_a, double sin_a,
-        double longitude, double latitude, double dayOfYear, const Params* params);
+        double longitude, double latitude, CoCiPTime& datetime, const Params* params);
 
 private:
     // Virtual method called by calc_variables to update the local variables using type-specific

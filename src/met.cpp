@@ -2,6 +2,7 @@
 #include <string>
 #include <CoCiP++/met.h>
 #include <CoCiP++/params.h>
+#include <CoCiP++/CoCiPTime.h>
 #include "wind_shear.h"
 #include "tau_cirrus.h"
 #include "thermo.h"
@@ -12,7 +13,7 @@
 // IMet
 
 void IMet::calc_variables(double altitude, double cumul_heat, double depth, double cos_a, double sin_a,
-    double longitude, double latitude, double dayOfYear, const Params* params) {
+    double longitude, double latitude, CoCiPTime& datetime, const Params* params) {
     
     // Save required values from last time step
     air_pressure_old = air_pressure;
@@ -47,7 +48,7 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
 
     tau_cirrus = calc_tau_cirrus();
 
-    sdr = geo::solar_direct_radiation(longitude, latitude, dayOfYear, 0.01);
+    sdr = geo::solar_direct_radiation(longitude, latitude, datetime, 0.01);
 
     rsr = std::max(sdr - tnsr, 0.);
 }

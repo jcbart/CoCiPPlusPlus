@@ -112,7 +112,7 @@ void CoCiP<MetType>::set_heading(const double a) {
 
 template <typename MetType>
 void CoCiP<MetType>::update_met_calculations() {
-    met->calc_variables(altitude, cumul_heat, depth, cos_a, sin_a, longitude, latitude, dayOfYear,
+    met->calc_variables(altitude, cumul_heat, depth, cos_a, sin_a, longitude, latitude, datetime,
         params);
 }
 
@@ -139,7 +139,7 @@ void CoCiP<MetType>::calc_contrail_properties() {
     double eff_heat_rate = 0; // = 0 if radiative_heating_effects is false
 
     if (params->radiative_heating_effects) {
-        double theta_rad = geo::orbital_position(dayOfYear);
+        double theta_rad = geo::orbital_position(datetime.day_of_year());
         double sd0 = geo::solar_constant(theta_rad);
         heat_rate = radiative_heating::heating_rate(met->air_temperature, met->rh_i, met->rho_air,
             r_ice_vol, depth_eff, tau_contrail, met->tau_cirrus, sd0, met->sdr, met->rsr, met->olr);
@@ -162,7 +162,7 @@ void CoCiP<MetType>::calc_contrail_properties() {
 
 template <typename MetType>
 void CoCiP<MetType>::calc_radiative_properties() {
-    double theta_rad = geo::orbital_position(dayOfYear);
+    double theta_rad = geo::orbital_position(datetime.day_of_year());
     double sd0 = geo::solar_constant(theta_rad);
 
     double r_vol_um = r_ice_vol * 1e6;

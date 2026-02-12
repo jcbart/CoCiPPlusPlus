@@ -1,13 +1,14 @@
 #ifndef GEO_H
 #define GEO_H
 
+#include <CoCiP++/CoCiPTime.h>
 #include "constants.h"
 
 namespace geo {
 
 // Calculate the orbital position of Earth relative to the start of the year (radians)
-constexpr double orbital_position(double dayOfYear) {
-    return (constants::RAD_PER_DEG * (360. * (dayOfYear / 365.25)));
+constexpr double orbital_position(double day_of_year) {
+    return (constants::RAD_PER_DEG * (360. * (day_of_year / 365.25)));
 }
 
 // Calculate the solar electromagnetic radiation per unit area from orbital position (W m-2)
@@ -51,11 +52,10 @@ constexpr double solar_hour_angle(double longitude, double hour, double theta_ra
 }
 
 // Calculate the cosine of the solar zenith angle (radians)
-inline double cosine_solar_zenith_angle(double longitude, double latitude, double dayOfYear, double theta_rad) {
-    double hour = 24 * (dayOfYear - std::floor(dayOfYear));
+inline double cosine_solar_zenith_angle(double longitude, double latitude, CoCiPTime& datetime, double theta_rad) {
     double lat_rad = constants::RAD_PER_DEG * latitude;
     double sdec_rad = constants::RAD_PER_DEG * solar_declination_angle(theta_rad);
-    double sha_rad = constants::RAD_PER_DEG * solar_hour_angle(longitude, hour, theta_rad);
+    double sha_rad = constants::RAD_PER_DEG * solar_hour_angle(longitude, datetime.hour_of_day(), theta_rad);
     return (
         std::sin(lat_rad) * std::sin(sdec_rad) + (
         std::cos(lat_rad) * std::cos(sdec_rad) * std::cos(sha_rad)
@@ -64,11 +64,10 @@ inline double cosine_solar_zenith_angle(double longitude, double latitude, doubl
 }
 
 // Calculate the instantaneous theoretical solar direct radiation (SDR; W m-2)
-// dayOfYear is a decimal starting at 0 at the start of the year
-inline double solar_direct_radiation(double longitude, double latitude, double dayOfYear, double threshold_cos_sza = 0) {
-    double theta_rad = orbital_position(dayOfYear);
+inline double solar_direct_radiation(double longitude, double latitude, CoCiPTime& datetime, double threshold_cos_sza = 0) {
+    double theta_rad = orbital_position(datetime.day_of_year());
     double solar_const = solar_constant(theta_rad);
-    double cos_sza = cosine_solar_zenith_angle(longitude, latitude, dayOfYear, theta_rad);
+    double cos_sza = cosine_solar_zenith_angle(longitude, latitude, datetime, theta_rad);
     return (cos_sza < threshold_cos_sza) ? 0 : (cos_sza * solar_const);
 }
 

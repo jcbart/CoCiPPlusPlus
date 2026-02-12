@@ -9,8 +9,13 @@ dt_s: 600
 # Output save interval (m)
 save_interval_m: 10
 
-# Day of the year including time of day (as decimal)
-dayOfYear: 180.5
+# Date and time
+year: 2025
+month: 6
+day: 30
+hour: 12
+minute: 0
+seconds: 0
 
 # Longitude (degrees)
 longitude: 0

@@ -1,6 +1,8 @@
 #ifndef COCIP_H
 #define COCIP_H
 
+#include <CoCiP++/CoCiPTime.h>
+
 // Forward declarations
 
 struct Params;
@@ -46,10 +48,13 @@ public:
     // Pointer to params
     Params* params;
 
-    double altitude; // (m); updated by initial_properties and altitude_after_settling, but should also be driven externally by advection
-    double dayOfYear; // Days since the start of the year as a decimal (must include time of day); only for calculating solar direction radiation and must be driven externally
     double longitude; // (degrees); only for calculating solar direction radiation and must be driven externally
     double latitude; // (degrees); only for calculating solar direction radiation and must be driven externally
+    double altitude; // (m); updated by initial_properties and altitude_after_settling, but should also be driven externally by advection
+    CoCiPTime datetime;
+
+    double sin_a; // Sin of angle between contrail and longitude axis; set in evolve
+    double cos_a; // Cos of angle between contrail and longitude axis; set in evolve
 
     // Flight inputs
     double engine_efficiency;
@@ -71,8 +76,6 @@ public:
     double depth = 0; // (m); first set in simulate_wake_vortex_downwash, updated in plume_temporal_evolution
     double area_eff = 0; // (m2); first set in calc_contrail_properties
     double sigma_yz = 0; // What is it? Initially zero, updated in plume_temporal_evolution
-    double sin_a; // Sin of angle between contrail and longitude axis; set in evolve
-    double cos_a; // Cos of angle between contrail and longitude axis; set in evolve
     double n_ice_per_m = 0; // Ice crystal number per unit length (# m-1); first set in initial_properties, updated in calc_timestep_contrail_evolution
     double n_ice_per_vol = 0; // Ice crystal number per unit volume (# m-3); calculated in calc_contrail_properties
     double iwc = 0; // Ice water content (kg (kg air)-1); first set in initial_properties, updated in calc_timestep_contrail_evolution
