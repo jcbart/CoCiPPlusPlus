@@ -1,9 +1,6 @@
 #ifndef COCIPTIME_H
 #define COCIPTIME_H
 
-constexpr int DAYS_IN_MONTH[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-constexpr int DAYS_IN_MONTH_LEAP[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
 // Struct for storing a datetime: yy-mm-dd h:m:s
 // Does not check if datetime is valid
 struct CoCiPTime {
@@ -37,6 +34,9 @@ struct CoCiPTime {
 
     // Returns days (including partial) since the start of the year
     inline double day_of_year() const {
+        constexpr int DAYS_IN_MONTH[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        constexpr int DAYS_IN_MONTH_LEAP[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        
         double doy = 0;
         if (is_leap()) {
             for (int i = 0; i < mm-1; i++) {
