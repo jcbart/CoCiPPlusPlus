@@ -24,7 +24,8 @@ inline double wind_shear_normal(double u_wind_top, double u_wind_btm, double v_w
 }
 
 // Calculate the multiplication factor to enhance the wind shear based on contrail depth
-// If effective_vertical_resolution (m) or wind_shear_enhancement_exponent is zero,
+// If effective_vertical_resolution (m) is zero, the enhancement is 0.5
+// If wind_shear_enhancement_exponent is zero (and effective_vertical_resolution is not zero),
 // there is no enhancement
 constexpr double wind_shear_enhancement_factor(double contrail_depth,
     double effective_vertical_resolution, double wind_shear_enhancement_exponent) {
