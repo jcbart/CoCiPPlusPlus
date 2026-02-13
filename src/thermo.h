@@ -39,10 +39,31 @@ constexpr double mk05_e_sat_liquid(double T) {
     );
 }
 
-// Calculate saturation pressure of water vapor over liquid water (Pa) given T (K)
+// Calculate saturation water vapor pressure with respect to liquid water (Pa) given T (K)
 // Configured to return mk05_e_sat_liquid(T)
 constexpr double e_sat_liquid(double T) {
     return mk05_e_sat_liquid(T);
+}
+
+// Calculate the derivate of mk05_e_sat_liquid (Pa K-1)
+inline double mk05_e_sat_liquid_prime(double T) {
+    double tanh_term = std::tanh(0.0415 * (T - 218.8));
+    return mk05_e_sat_liquid(T) * (
+        6763.22 / (T*T)
+        - 4.21 / T
+        + 0.000367
+        + 0.0415 * (1 - tanh_term*tanh_term) * (
+            53.878 - 1331.22 / T - 9.44523 * std::log(T) + 0.014025 * T
+        )
+        + tanh_term * (1331.22 / (T*T) - 9.44523 / T + 0.014025)
+    );
+}
+
+// Calculate the derivative of saturation water vapor pressure with respect to liquid water
+// (Pa K-1) given T (K)
+// Configured to return mk05_e_sat_liquid_prime(T)
+inline double e_sat_liquid_prime(double T) {
+    return mk05_e_sat_liquid_prime(T);
 }
 
 // Calculate saturation specific humidity over ice (kg (kg air)-1)
