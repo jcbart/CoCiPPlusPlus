@@ -87,10 +87,10 @@ void write_to_csv(CoCiP<MetType>& cocip, double time_elapsed_m, bool first_write
 
     if (first_write) {
         file.open("cocip.out");
-        file << "Time (m), Altitude (m), Width (m), Depth (m), sigma_yz (m2), n_ice_per_m3 (# m-3), "
-             << "n_ice_per_m (# m-1), IWC (kg kg-1), IWC (kg m-1), r_ice_vol (m), Optical depth (), "
-             << "Cumulative heat (K), Air temperature (K), RHi (), RF SW (W m-2), RF LW (W m-2), "
-             << "RF net (W m-2)\n";
+        file << "Time (m), Altitude (m), Width (m), Depth (m), sigma_yz (m2), "
+             << "n_ice_per_m3 (# m-3), n_ice_per_m (# m-1), IWC (kg kg-1), IWC (kg m-1), "
+             << "r_ice_vol (m), Optical depth (), Cumulative heat (K), Air temperature (K), "
+             << "RHi (), RF SW (W m-2), RF LW (W m-2), RF net (W m-2)\n";
     }
     else {
         file.open("cocip.out", std::ios::app);
@@ -108,9 +108,6 @@ void write_to_csv(CoCiP<MetType>& cocip, double time_elapsed_m, bool first_write
 
 // CoCiP standalone program
 int main(int argc, char* argv[]) {
-    std::string msg;
-    
-    CoCiP_LogWrite("Program starting");
 
     // Read config file path
     std::string configPath = "CoCiP-config.yaml";
@@ -118,21 +115,17 @@ int main(int argc, char* argv[]) {
         configPath = argv[1];
     }
 
-    // Read config containing start/stop/dt plus flight inputs
-    msg = std::string("Reading config file: ") + configPath;
-    CoCiP_LogWrite(msg);
+    // Read config containing simulation parameters and flight and met inputs
     Config config;
     config.readYAML(configPath);
 
     CoCiP<SimpleMet> cocip;
 
     // Give pointer to Params object and read YAML
-    CoCiP_LogWrite("Reading params");
     cocip.params = new Params;
     cocip.params->readYAML();
 
     // Initialise cocip.met
-    CoCiP_LogWrite("Initialising met");
     cocip.met = new SimpleMet(config.z0, config.P0, config.T0, config.lapse_rate, config.rh_i1,
         config.rh_i0, config.D1, config.DT, config.ds_dz);
     
@@ -163,22 +156,19 @@ int main(int argc, char* argv[]) {
     cocip.T_exhaust = config.T_exhaust;
     cocip.nvpm_ei_n = config.nvpm_ei_n;
     
-    CoCiP_LogWrite("Formation");
     cocip.formation();
 
     if (!cocip.sac) {
-        CoCiP_LogWrite("No contrail formed");
+        CoCiP_LogWrite("Finished: No contrail formed");
         exit(EXIT_SUCCESS);
     }
     
-    CoCiP_LogWrite("Wake vortex");
     cocip.simulate_wake_vortex_downwash();
     
-    CoCiP_LogWrite("Finding initial properties");
     cocip.initial_properties();
 
     if (!cocip.persistent) {
-        CoCiP_LogWrite("Not initially persistent");
+        CoCiP_LogWrite("Finished: Not initially persistent");
         exit(EXIT_SUCCESS);
     }
 
@@ -189,7 +179,6 @@ int main(int argc, char* argv[]) {
     double time_elapsed_m = 0;
     double next_save_m = config.save_interval_m;
     
-    CoCiP_LogWrite("Starting evolution");
     while (time_elapsed_m < config.duration_m) {
         time_elapsed_m += (config.dt_s / 60);
 
@@ -201,19 +190,10 @@ int main(int argc, char* argv[]) {
         }
 
         if (!cocip.persistent) {
-            msg = "Not persistent at " + std::to_string(time_elapsed_m) + " m";
-            CoCiP_LogWrite(msg);
+            CoCiP_LogWrite("Finished: Not persistent at " + std::to_string(time_elapsed_m) + " m");
             exit(EXIT_SUCCESS);
         }
     }
-    CoCiP_LogWrite("Finished");
-    /*
-    General loop:
-    - "Advect" - altitude for advection should take into account that CoCiP::altitude is updated by initial_properties and evolve
-    - Update datetime, longitude, and latitude
-    - Update meteorology slices plus tnsr and olr in met
-    - Call evolve
-    */
 
     return 0;
 }
