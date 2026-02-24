@@ -102,22 +102,6 @@ void ArrayMet<arrayType>::check_valid_arrays() const {
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
-    // U
-    for (int i = 0; i < vsize-1; i++) {
-        if (U[i] < 0) {
-            msg = "U array invalid - U[" + std::to_string(i) + "] = "
-                + std::to_string(U[i]);
-            CoCiP_RaiseError(msg, __FILE__, __LINE__);
-        }
-    }
-    // V
-    for (int i = 0; i < vsize-1; i++) {
-        if (V[i] < 0) {
-            msg = "V array invalid - V[" + std::to_string(i) + "] = "
-                + std::to_string(V[i]);
-            CoCiP_RaiseError(msg, __FILE__, __LINE__);
-        }
-    }
     // CIWC
     for (int i = 0; i < vsize-1; i++) {
         if (CIWC[i] < 0) {
