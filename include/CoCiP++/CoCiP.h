@@ -1,6 +1,7 @@
 #ifndef COCIP_H
 #define COCIP_H
 
+#include <memory>
 #include <CoCiP++/CoCiPTime.h>
 
 // Forward declarations
@@ -43,10 +44,10 @@ private:
 
 public:
     // Pointer to meteorology object (derived IMet struct)
-    MetType* met;
+    std::unique_ptr<MetType> met;
 
     // Pointer to params
-    Params* params;
+    std::shared_ptr<Params> params;
 
     double longitude; // (degrees); only for calculating solar direction radiation and must be driven externally
     double latitude; // (degrees); only for calculating solar direction radiation and must be driven externally

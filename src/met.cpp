@@ -12,7 +12,7 @@
 // IMet
 
 void IMet::calc_variables(double altitude, double cumul_heat, double depth, double cos_a, double sin_a,
-    double longitude, double latitude, CoCiPTime& datetime, const Params* params) {
+    double longitude, double latitude, CoCiPTime& datetime, const Params& params) {
     
     // Save required values from last time step
     air_pressure_old = air_pressure;
@@ -37,7 +37,7 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
     
     // Wind shear enhancement (in calc_contrail_properties in pycontrails)
     double shear_enhancement = wind_shear::wind_shear_enhancement_factor(depth,
-        effective_vertical_resolution, params->wind_shear_enhancement_exponent);
+        effective_vertical_resolution, params.wind_shear_enhancement_exponent);
     ds_dz *= shear_enhancement;
     dsn_dz *= shear_enhancement;
 

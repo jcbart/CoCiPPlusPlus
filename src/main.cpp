@@ -1,4 +1,5 @@
 #include <fstream>
+#include <memory>
 #include <yaml-cpp/yaml.h>
 #include <CoCiP++/CoCiP.h>
 #include <CoCiP++/met.h>
@@ -122,12 +123,15 @@ int main(int argc, char* argv[]) {
     CoCiP<SimpleMet> cocip;
 
     // Give pointer to Params object and read YAML
-    cocip.params = new Params;
+    cocip.params = std::shared_ptr<Params>(new Params);
     cocip.params->readYAML();
 
     // Initialise cocip.met
-    cocip.met = new SimpleMet(cocip.params->dz_m, config.z0, config.P0, config.T0,
-        config.lapse_rate, config.rh_i1, config.rh_i0, config.D1, config.DT, config.ds_dz);
+    cocip.met = std::unique_ptr<SimpleMet>(
+        new SimpleMet(cocip.params->dz_m, config.z0, config.P0, config.T0,
+            config.lapse_rate, config.rh_i1, config.rh_i0, config.D1, config.DT, config.ds_dz
+        )
+    );
     
     cocip.met->tnsr = config.tnsr;
     cocip.met->olr = config.olr;

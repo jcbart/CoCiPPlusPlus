@@ -31,12 +31,12 @@ double contrail_properties::iwc_adiabatic_heating(double air_temperature_pre_vor
 }
 
 bool contrail_properties::contrail_persistent(double tau_contrail, double n_ice_per_m3,
-    const Params* params) {
+    const Params& params) {
     
-    if (tau_contrail < params->min_tau) { return false; }
-    else if (tau_contrail > params->max_tau) { return false; }
-    else if (n_ice_per_m3 < params->min_n_ice_per_m3) { return false; }
-    else if (n_ice_per_m3 > params->max_n_ice_per_m3) { return false; }
+    if (tau_contrail < params.min_tau) { return false; }
+    else if (tau_contrail > params.max_tau) { return false; }
+    else if (n_ice_per_m3 < params.min_n_ice_per_m3) { return false; }
+    else if (n_ice_per_m3 > params.max_n_ice_per_m3) { return false; }
     return true;
 }
 

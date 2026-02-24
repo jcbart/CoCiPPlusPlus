@@ -72,7 +72,7 @@ inline bool initial_persistent(double iwc_post_vortex, double rh_i) {
 // Determine if contrail passes survival threshold criteria
 // Does not include age, altitude, or latitude conditions
 bool contrail_persistent(double tau_contrail, double n_ice_per_m3,
-    const Params* params);
+    const Params& params);
 
 // Calculate the effective cross-sectional area of the contrail plume (m2)
 double plume_effective_cross_sectional_area(double width, double depth,

@@ -113,7 +113,7 @@ void CoCiP<MetType>::set_heading(const double a) {
 template <typename MetType>
 void CoCiP<MetType>::update_met_calculations() {
     met->calc_variables(altitude, cumul_heat, depth, cos_a, sin_a, longitude, latitude, datetime,
-        params);
+        *params);
 }
 
 template <typename MetType>
@@ -261,7 +261,7 @@ void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio,
     calc_contrail_properties();
     calc_radiative_properties();
     
-    persistent = contrail_properties::contrail_persistent(tau_contrail, n_ice_per_vol, params);
+    persistent = contrail_properties::contrail_persistent(tau_contrail, n_ice_per_vol, *params);
     
     // No energy forcing because requires length, can be calculated externally if desired
 }
