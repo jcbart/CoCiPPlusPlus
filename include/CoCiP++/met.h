@@ -79,12 +79,6 @@ struct ArrayMet : public IMet {
     // Initialise Met object with unstaggered vertical length
     ArrayMet(double dz_m, int vsize) : IMet(dz_m), vsize(vsize) {}
 
-private:
-    void get_local_values(const double altitude) override;
-
-    // Equivalent to pycontrails' tau_cirrus
-    double calc_tau_cirrus(const double altitude) const override;
-
     // Checks if the array pointers have valid values
     void check_valid_arrays() const;
 
@@ -155,6 +149,12 @@ private:
     constexpr double interp_V(const int k_below, const double interp_fraction) {
         return (V[k_below] + interp_fraction * (V[k_below + 1] - V[k_below]));
     }
+
+private:
+    void get_local_values(const double altitude) override;
+
+    // Equivalent to pycontrails' tau_cirrus
+    double calc_tau_cirrus(const double altitude) const override;
 };
 
 // Array met type: uses simple formulae to calculate local variables
