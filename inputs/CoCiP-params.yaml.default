@@ -4,6 +4,8 @@
 # https://github.com/contrailcirrus/pycontrails/blob/main/pycontrails/models/cocip/cocip_params.py
 # "None" fields should be "null", "~", or omitted from the yaml
 
+dz_m: 200
+
 initial_wake_vortex_depth: 0.5
 
 sedimentation_impact_factor: 0.5
