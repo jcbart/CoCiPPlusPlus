@@ -3,7 +3,7 @@
 #ifdef ESMF
 #include "ESMC.h"
 #endif
-#include "CoCiPLog.h"
+#include <CoCiP++/CoCiPLog.h>
 
 void CoCiP_LogWrite(const char* msg) {
 #ifdef ESMF
@@ -18,7 +18,7 @@ void CoCiP_LogWrite(std::string msg) {
 }
 
 void CoCiP_RaiseError(const char* msg, const char* filename, const int line) {
-    std::string error = std::string("Error in ") + filename + std::string(", line ")
+    std::string error = std::string("CoCiP error in ") + filename + std::string(", line ")
                         + std::to_string(line) + std::string(": ") + msg;
 
 #ifdef ESMF

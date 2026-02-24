@@ -13,7 +13,7 @@
 #include "radiative_forcing.h"
 #include "thermo.h"
 #include "geo.h"
-#include "CoCiPLog.h"
+#include <CoCiP++/CoCiPLog.h>
 
 // Types to compile
 template class CoCiP<SimpleMet>;

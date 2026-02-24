@@ -8,7 +8,6 @@
 #include "thermo.h"
 #include "geo.h"
 #include "constants.h"
-#include "CoCiPLog.h"
 
 // IMet
 
@@ -46,7 +45,7 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
 
     rh_i = thermo::rh_i(specific_humidity, air_temperature, air_pressure);
 
-    tau_cirrus = calc_tau_cirrus();
+    tau_cirrus = calc_tau_cirrus(altitude);
 
     sdr = geo::solar_direct_radiation(longitude, latitude, datetime, 0.01);
 
@@ -60,41 +59,153 @@ template struct ArrayMet<float>;
 template struct ArrayMet<double>;
 
 template <typename arrayType>
-void ArrayMet<arrayType>::get_local_values(double altitude) {
-    k = find_k_index(altitude);
+void ArrayMet<arrayType>::check_valid_arrays() const {
+    std::string msg;
 
-    k_lower = std::max(k-1, 0);
+    // Check for null pointers
+    if (P == nullptr) { CoCiP_RaiseError("P array pointer is null", __FILE__, __LINE__); }
+    if (T_POT == nullptr) { CoCiP_RaiseError("T_POT array pointer is null", __FILE__, __LINE__); }
+    if (QV == nullptr) { CoCiP_RaiseError("QV array pointer is null", __FILE__, __LINE__); }
+    if (U == nullptr) { CoCiP_RaiseError("U array pointer is null", __FILE__, __LINE__); }
+    if (V == nullptr) { CoCiP_RaiseError("V array pointer is null", __FILE__, __LINE__); }
+    if (CIWC == nullptr) { CoCiP_RaiseError("CIWC array pointer is null", __FILE__, __LINE__); }
+    if (Z == nullptr) { CoCiP_RaiseError("Z array pointer is null", __FILE__, __LINE__); }
+    if (Z_AT_W == nullptr) { CoCiP_RaiseError("Z_AT_W array pointer is null", __FILE__, __LINE__); }
 
-    air_pressure = P[k];
-    air_temperature = thermo::T_from_T_potential(T_POT[k], air_pressure);
-    specific_humidity = QV[k];
-    u_wind = U[k];
-    v_wind = V[k];
-    air_pressure_lower = P[k_lower];
-    air_temperature_lower = thermo::T_from_T_potential(T_POT[k_lower], air_pressure_lower);
-    u_wind_lower = U[k_lower];
-    v_wind_lower = V[k_lower];
-    ciwc = CIWC[k];
-    effective_vertical_resolution = Z[k] - Z[k_lower];
-    dz_m = Z[k] - Z[k_lower];
-}
-
-template <typename arrayType>
-int ArrayMet<arrayType>::find_k_index(double altitude) const {
-    for (int k_trial = 0; k_trial < vsize; k_trial++) {
-        if ((altitude >= Z_AT_W[k_trial]) && (altitude < Z_AT_W[k_trial+1])) {
-            return k_trial;
+    // P
+    for (int i = 0; i < vsize-1; i++) {
+        if (P[i] <= 0) {
+            msg = "P array invalid - P[" + std::to_string(i) + "] = "
+                + std::to_string(P[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+        if (P[i] <= P[i+1]) {
+            msg = "P array invalid - found P[" + std::to_string(i) + "] = "
+                + std::to_string(P[i]) + " and P[" + std::to_string(i+1) + "] = "
+                + std::to_string(P[i+1]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
-    std::string msg = "altitude " + std::to_string(altitude)
-        + " m is not in Z_AT_W range (min: " + std::to_string(Z_AT_W[0])
-        + ", max: " + std::to_string(Z_AT_W[vsize]) + ")";
-    CoCiP_RaiseError(msg, __FILE__, __LINE__);
-    return -1;
+    // T_POT
+    for (int i = 0; i < vsize-1; i++) {
+        if (T_POT[i] <= 0) {
+            msg = "T_POT array invalid - T_POT[" + std::to_string(i) + "] = "
+                + std::to_string(T_POT[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // QV
+    for (int i = 0; i < vsize-1; i++) {
+        if (QV[i] < 0) {
+            msg = "QV array invalid - QV[" + std::to_string(i) + "] = "
+                + std::to_string(QV[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // U
+    for (int i = 0; i < vsize-1; i++) {
+        if (U[i] < 0) {
+            msg = "U array invalid - U[" + std::to_string(i) + "] = "
+                + std::to_string(U[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // V
+    for (int i = 0; i < vsize-1; i++) {
+        if (V[i] < 0) {
+            msg = "V array invalid - V[" + std::to_string(i) + "] = "
+                + std::to_string(V[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // CIWC
+    for (int i = 0; i < vsize-1; i++) {
+        if (CIWC[i] < 0) {
+            msg = "CIWC array invalid - V[" + std::to_string(i) + "] = "
+                + std::to_string(V[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // Z
+    for (int i = 0; i < vsize-1; i++) {
+        if (Z[i] <= 0) {
+            msg = "Z array invalid - Z[" + std::to_string(i) + "] = "
+                + std::to_string(Z[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+        if (Z[i] >= Z[i+1]) {
+            msg = "Z array invalid - found Z[" + std::to_string(i) + "] = "
+                + std::to_string(Z[i]) + " and Z[" + std::to_string(i+1) + "] = "
+                + std::to_string(Z[i+1]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // Z_AT_W
+    for (int i = 0; i < vsize; i++) {
+        if (Z_AT_W[i] <= 0) {
+            msg = "Z_AT_W array invalid - Z_AT_W[" + std::to_string(i) + "] = "
+                + std::to_string(Z_AT_W[i]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+        if (Z_AT_W[i] >= Z_AT_W[i+1]) {
+            msg = "Z_AT_W array invalid - found Z_AT_W[" + std::to_string(i) + "] = "
+                + std::to_string(Z_AT_W[i]) + " and Z_AT_W[" + std::to_string(i+1) + "] = "
+                + std::to_string(Z_AT_W[i+1]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
+    // Z with Z_AT_W
+    for (int i = 0; i < vsize; i++) {
+        if (Z[i] < Z_AT_W[i] || Z[i] >= Z_AT_W[i+1]) {
+            msg = "Z or Z_AT_W array invalid - found Z[" + std::to_string(i) + "] = "
+                + std::to_string(Z[i]) + ", but Z_AT_W[" + std::to_string(i) + "] = "
+                + std::to_string(Z_AT_W[i]) + " and Z_AT_W[" + std::to_string(i+1) + "] = "
+                + std::to_string(Z_AT_W[i+1]);
+            CoCiP_RaiseError(msg, __FILE__, __LINE__);
+        }
+    }
 }
 
 template <typename arrayType>
-double ArrayMet<arrayType>::calc_tau_cirrus() const {
+void ArrayMet<arrayType>::get_local_values(const double altitude) {
+    check_valid_arrays();
+
+    // Find index of grid cell centre below altitude
+    int k_below = find_k_below(altitude);
+
+    // Find height fraction of altitude between grid cell centres
+    double interp_fraction = calc_interp_fraction(altitude, k_below);
+
+    // Interpolate values
+    air_pressure = interp_P(k_below, interp_fraction);
+    air_temperature = thermo::T_from_T_potential(
+        interp_T_POT(k_below, interp_fraction), air_pressure
+    );
+    specific_humidity = interp_QV(k_below, interp_fraction);
+    u_wind = interp_U(k_below, interp_fraction);
+    v_wind = interp_V(k_below, interp_fraction);
+
+    // Find index of grid cell centre dz_m below altitude
+    int k_below_lower = find_k_below(altitude - dz_m);
+
+    // Find height fraction of altitude between grid cell centres
+    double interp_fraction_lower = calc_interp_fraction(altitude - dz_m, k_below_lower);
+
+    // Interpolate lower values
+    air_pressure_lower = interp_P(k_below_lower, interp_fraction_lower);
+    air_temperature_lower = thermo::T_from_T_potential(
+        interp_T_POT(k_below_lower, interp_fraction_lower), air_pressure_lower
+    );
+    u_wind_lower = interp_U(k_below_lower, interp_fraction_lower);
+    v_wind_lower = interp_V(k_below_lower, interp_fraction_lower);
+
+    effective_vertical_resolution = Z[k_below + 1] - Z[k_below];
+}
+
+template <typename arrayType>
+double ArrayMet<arrayType>::calc_tau_cirrus(const double altitude) const {
+    // Find grid cell index of contrail
+    int k = find_k_inside(altitude);
     // Integrate from contrail altitude to TOA
     double cumsum = 0;
     // Cirrus optical depth is defined as cirrus optical depth above the contrail
@@ -113,23 +224,7 @@ double ArrayMet<arrayType>::calc_tau_cirrus() const {
 
 // SimpleMet
 
-SimpleMet::SimpleMet(double z0, double P0, double T0, double lapse_rate, double rh_i1,
-    double rh_i0, double D1, double DT, double ds_dz_cross_track) {
-    
-    this->z0 = z0;
-    this->P0 = P0;
-    this->T0 = T0;
-    this->lapse_rate = lapse_rate;
-    this->rh_i1 = rh_i1;
-    this->rh_i0 = rh_i0;
-    this->D1 = D1;
-    this->DT = DT;
-    this->ds_dz_cross_track = ds_dz_cross_track;
-    effective_vertical_resolution = 0;
-    dz_m = 100; // Value for calculating _lower variables
-}
-
-void SimpleMet::get_local_values(double altitude) {
+void SimpleMet::get_local_values(const double altitude) {
     // Remove cmath and constants and move to thermo
 
     air_temperature = T0 - lapse_rate * (altitude - z0);
@@ -166,9 +261,4 @@ void SimpleMet::get_local_values(double altitude) {
     v_wind = 0;
     u_wind_lower = 0;
     v_wind_lower = -ds_dz_cross_track * dz_m;
-    ciwc = 0;
-}
-
-double SimpleMet::calc_tau_cirrus() const {
-    return 0;
 }

@@ -3,7 +3,7 @@
 #include <vector>
 #include "radiative_forcing.h"
 #include "constants.h"
-#include "CoCiPLog.h"
+#include <CoCiP++/CoCiPLog.h>
 
 std::vector<double> radiative_forcing::calc_habit_weights(double r_vol_um,
     const std::vector<std::vector<double>>& habit_distributions,

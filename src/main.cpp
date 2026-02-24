@@ -3,7 +3,7 @@
 #include <CoCiP++/CoCiP.h>
 #include <CoCiP++/met.h>
 #include <CoCiP++/params.h>
-#include "CoCiPLog.h"
+#include <CoCiP++/CoCiPLog.h>
 
 struct Config {
     double duration_m;
@@ -126,8 +126,8 @@ int main(int argc, char* argv[]) {
     cocip.params->readYAML();
 
     // Initialise cocip.met
-    cocip.met = new SimpleMet(config.z0, config.P0, config.T0, config.lapse_rate, config.rh_i1,
-        config.rh_i0, config.D1, config.DT, config.ds_dz);
+    cocip.met = new SimpleMet(cocip.params->dz_m, config.z0, config.P0, config.T0,
+        config.lapse_rate, config.rh_i1, config.rh_i0, config.D1, config.DT, config.ds_dz);
     
     cocip.met->tnsr = config.tnsr;
     cocip.met->olr = config.olr;

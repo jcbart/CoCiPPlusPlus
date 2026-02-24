@@ -4,10 +4,12 @@
 #include <yaml-cpp/yaml.h>
 #include <CoCiP++/params.h>
 #include "constants.h"
-#include "CoCiPLog.h"
+#include <CoCiP++/CoCiPLog.h>
 
 void Params::readYAML() {
     YAML::Node node = YAML::LoadFile("CoCiP-params.yaml");
+
+    dz_m = node["dz_m"].as<double>();
 
     initial_wake_vortex_depth = node["initial_wake_vortex_depth"].as<double>();
 

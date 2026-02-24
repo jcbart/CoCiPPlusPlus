@@ -6,6 +6,9 @@
 struct Params {
     bool isInitialised = false;
 
+    // Difference in altitude used for calculating potential temperature gradient and wind shear (m)
+    double dz_m;
+
     // Initial wake vortex depth scaling factor
     // This factor scales max contrail downward displacement after the wake vortex phase
     // to set the initial contrail depth
