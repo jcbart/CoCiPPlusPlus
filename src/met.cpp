@@ -60,20 +60,6 @@ template struct ArrayMet<float>;
 template struct ArrayMet<double>;
 
 template <typename arrayType>
-ArrayMet<arrayType>::ArrayMet(int vsize) {
-    this->vsize = vsize;
-
-    T_POT = new arrayType[vsize];
-    P = new arrayType[vsize];
-    QV = new arrayType[vsize];
-    U = new arrayType[vsize];
-    V = new arrayType[vsize];
-    CIWC = new arrayType[vsize];
-    Z = new arrayType[vsize];
-    Z_AT_W = new arrayType[vsize + 1];
-}
-
-template <typename arrayType>
 void ArrayMet<arrayType>::get_local_values(double altitude) {
     k = find_k_index(altitude);
 
@@ -102,7 +88,7 @@ int ArrayMet<arrayType>::find_k_index(double altitude) const {
     }
     std::string msg = "altitude " + std::to_string(altitude)
         + " m is not in Z_AT_W range (min: " + std::to_string(Z_AT_W[0])
-        + ", max: " + std::to_string(Z_AT_W[vsize-1]) + ")";
+        + ", max: " + std::to_string(Z_AT_W[vsize]) + ")";
     CoCiP_RaiseError(msg, __FILE__, __LINE__);
     return -1;
 }
@@ -123,25 +109,6 @@ double ArrayMet<arrayType>::calc_tau_cirrus() const {
         cumsum += beta_e * dz;
     }
     return cumsum;
-}
-
-template <typename arrayType>
-ArrayMet<arrayType>::~ArrayMet() {
-    deletePtr(T_POT);
-    deletePtr(P);
-    deletePtr(QV);
-    deletePtr(U);
-    deletePtr(V);
-    deletePtr(CIWC);
-    deletePtr(Z);
-    deletePtr(Z_AT_W);
-}
-
-template <typename arrayType>
-void ArrayMet<arrayType>::deletePtr(arrayType* ptr) {
-    if (ptr != nullptr) {
-        delete ptr;
-    }
 }
 
 // SimpleMet

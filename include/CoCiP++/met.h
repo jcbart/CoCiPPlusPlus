@@ -76,15 +76,9 @@ struct ArrayMet : public IMet {
     int k_lower;
 
     // Initialise Met object with unstaggered vertical length
-    ArrayMet(int vsize);
-
-    // Destructor
-    ~ArrayMet();
+    ArrayMet(int vsize) : vsize(vsize) { }
 
 private:
-    // Private utility function to delete data associated with a pointer if it exists
-    void deletePtr(arrayType* ptr);
-
     void get_local_values(double altitude) override;
 
     // Equivalent to pycontrails' tau_cirrus
