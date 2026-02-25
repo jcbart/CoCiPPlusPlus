@@ -17,9 +17,6 @@ The following are included as Git submodules and are compiled with the project:
 
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp)
 
-### Optional external dependencies
-- [Earth System Modeling Framework (ESMF)](https://earthsystemmodeling.org/) (in the future)
-
 ### Instructions
 
 Clone the GitHub repo with
@@ -71,7 +68,7 @@ Include the headers in `include/CoCiP++`.
 
 Declare a `CoCiP` object.
 
-Assign a pointer to a `Params` object and a pointer to a derived `IMet` object to `CoCiP::params` and `CoCiP::met` respectively.
+Assign a shared pointer to a `Params` object to `CoCiP::params` and a unique pointer to a derived `IMet` object (e.g. `ArrayMet`) to `CoCiP::met` respectively.
 
 Assign flight inputs and initial time and location to the `CoCiP` object, as well as initial meterological values to the `CoCiP::met` object if required.
 
@@ -81,7 +78,7 @@ If `CoCiP::sac` is true, call `CoCiP::simulate_wake_vortex_downwash`, then `CoCi
 
 If `CoCiP::persistent` is true, call `CoCiP::process_downwash_flight` passing the segment heading angle.
 
-In a loop, advect the plume location, update the meterological variables, time, and location, and call `CoCiP::evolve` passing the segment length ratio, the segment heading angle, and the time step duration; end the loop is `CoCiP::persistent` is not true.
+In a loop, advect the plume location, update the meterological variables, time, and location, then call `CoCiP::evolve` passing the segment length ratio, the segment heading angle, and the time step duration. End the loop is `CoCiP::persistent` is not true.
 
 ### Notes
 
