@@ -2,9 +2,9 @@
 #include <vector>
 #include <string>
 #include <yaml-cpp/yaml.h>
+#include <CoCiP++/CoCiPLog.h>
 #include <CoCiP++/params.h>
 #include "constants.h"
-#include <CoCiP++/CoCiPLog.h>
 
 void Params::readYAML() {
     YAML::Node node = YAML::LoadFile("CoCiP-params.yaml");

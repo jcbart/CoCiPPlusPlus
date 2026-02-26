@@ -2,9 +2,9 @@
 #include <memory>
 #include <yaml-cpp/yaml.h>
 #include <CoCiP++/CoCiP.h>
+#include <CoCiP++/CoCiPLog.h>
 #include <CoCiP++/met.h>
 #include <CoCiP++/params.h>
-#include <CoCiP++/CoCiPLog.h>
 
 struct Config {
     double duration_m;

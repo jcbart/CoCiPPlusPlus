@@ -58,15 +58,15 @@ public:
     double cos_a; // Cos of angle between contrail and longitude axis; set in evolve
 
     // Flight inputs
-    double engine_efficiency;
-    double ei_h2o;
-    double q_fuel;
-    double aircraft_mass;
-    double wingspan;
-    double true_airspeed;
-    double fuel_flow;
-    double T_exhaust;
-    double nvpm_ei_n;
+    double engine_efficiency; // Engine efficiency ()
+    double ei_h2o; // Emissions index of water vapor (kg (kg fuel)-1)
+    double q_fuel; // Specific combustion heat of fuel (J kg-1)
+    double aircraft_mass; // Aircraft mass (kg)
+    double wingspan; // Aircraft wingspan (m)
+    double true_airspeed; // True airspeed (m s-1)
+    double fuel_flow; // Fuel flow (kg s-1)
+    double T_exhaust; // Exhaust temperature (K)
+    double nvpm_ei_n; // Emissions index of nvPM (# (kg fuel)-1)
 
     // Formation
     bool sac = false;

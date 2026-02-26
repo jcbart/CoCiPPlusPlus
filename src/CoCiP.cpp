@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <CoCiP++/CoCiP.h>
+#include <CoCiP++/CoCiPLog.h>
 #include <CoCiP++/met.h>
 #include <CoCiP++/params.h>
 #include "constants.h"
@@ -13,7 +14,6 @@
 #include "radiative_forcing.h"
 #include "thermo.h"
 #include "geo.h"
-#include <CoCiP++/CoCiPLog.h>
 
 // Types to compile
 template class CoCiP<SimpleMet>;
