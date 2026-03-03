@@ -126,7 +126,7 @@ void ArrayMet<arrayType>::check_valid_arrays() const {
     }
     // Z_AT_W
     for (int i = 0; i < vsize; i++) {
-        if (Z_AT_W[i] <= 0) {
+        if (Z_AT_W[i] < 0) {
             msg = "Z_AT_W array invalid - Z_AT_W[" + std::to_string(i) + "] = "
                 + std::to_string(Z_AT_W[i]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
