@@ -6,7 +6,7 @@
 namespace wind_shear {
 
 // Calculate the magnitude of the wind shear (s-1) between two altitudes 
-inline double wind_shear(double u_wind_top, double u_wind_btm, double v_wind_top,
+constexpr double wind_shear(double u_wind_top, double u_wind_btm, double v_wind_top,
     double v_wind_btm, double dz) {
     
     double du_dz = (u_wind_top - u_wind_btm) / dz;
@@ -15,7 +15,7 @@ inline double wind_shear(double u_wind_top, double u_wind_btm, double v_wind_top
 }
 
 // Calculate the wind shear normal to the contrail heading (s-1) between two altitudes 
-inline double wind_shear_normal(double u_wind_top, double u_wind_btm, double v_wind_top,
+constexpr double wind_shear_normal(double u_wind_top, double u_wind_btm, double v_wind_top,
     double v_wind_btm, double cos_a, double sin_a, double dz) {
     
     double du_dz = (u_wind_top - u_wind_btm) / dz;

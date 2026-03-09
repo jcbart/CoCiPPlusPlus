@@ -8,13 +8,13 @@
 namespace unterstrasser_wake_vortex {
 
 // Calculate area of the wake-vortex plume (m2)
-inline double plume_area(double wingspan) {
+constexpr double plume_area(double wingspan) {
     double r_plume = 1.5 + 0.314 * wingspan;
     return (2 * constants::PI * r_plume*r_plume);
 }
 
 // Calculate the total length-scale effect of the wake vortex downwash (m)
-inline double z_total_length_scale(double z_atm, double z_emit, double z_desc,
+constexpr double z_total_length_scale(double z_atm, double z_emit, double z_desc,
     double true_airspeed, double fuel_flow, double aei_n, double wingspan) {
     
     double fuel_dist = fuel_flow / true_airspeed;
@@ -26,7 +26,7 @@ inline double z_total_length_scale(double z_atm, double z_emit, double z_desc,
 }
 
 // Calculate the length-scale effect of ambient supersaturation on the ice crystal mass budget (m)
-inline double z_atm_length_scale_analytical(double air_temperature, double rh_i) {
+constexpr double z_atm_length_scale_analytical(double air_temperature, double rh_i) {
     
     // Only perform operation when the ambient condition is supersaturated w.r.t. ice
     // Otherwise, z_atm = 0
@@ -36,7 +36,7 @@ inline double z_atm_length_scale_analytical(double air_temperature, double rh_i)
 }
 
 // Calculate aircraft-emitted water vapour concentration in the plume (kg m-3)
-inline double emitted_water_vapour_concentration(double ei_h2o, double wingspan,
+constexpr double emitted_water_vapour_concentration(double ei_h2o, double wingspan,
     double true_airspeed, double fuel_flow) {
     
     double h2o_per_dist = (ei_h2o * fuel_flow) / true_airspeed;
@@ -45,7 +45,7 @@ inline double emitted_water_vapour_concentration(double ei_h2o, double wingspan,
 }
 
 // Calculate the length-scale effect of water vapour emissions on the ice crystal mass budget (m)
-inline double z_emit_length_scale_analytical(double rho_emit, double air_temperature) {
+constexpr double z_emit_length_scale_analytical(double rho_emit, double air_temperature) {
     
     double t_205 = air_temperature - 205;
     double z_emit = 1106.6 * std::pow(rho_emit * 1e5, 0.678 + 0.0116 * t_205)
@@ -54,7 +54,7 @@ inline double z_emit_length_scale_analytical(double rho_emit, double air_tempera
 }
 
 // Calculate fraction of ice particle number surviving the wake vortex phase
-inline double survival_fraction_from_length_scale(double z_total) {
+constexpr double survival_fraction_from_length_scale(double z_total) {
     double f_surv = 0.42 + (1.31 / constants::PI) * std::atan(-1 + z_total/100);
     f_surv = std::max(0., std::min(1., f_surv));
     return f_surv;

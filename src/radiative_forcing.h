@@ -28,7 +28,7 @@ constexpr double effective_radius_sphere(double r_vol_um) {
 }
 
 // Effective radius of an ice crystal with a solid column habit (um)
-inline double effective_radius_solid_column(double r_vol_um) {
+constexpr double effective_radius_solid_column(double r_vol_um) {
     double r_eff_um = (
         0.2588 * std::exp(-(6.912e-3 * r_vol_um)) + 0.6372 * std::exp(-(3.142e-4 * r_vol_um))
     ) * r_vol_um;
@@ -39,7 +39,7 @@ inline double effective_radius_solid_column(double r_vol_um) {
 }
 
 // Effective radius of an ice crystal with a hollow column habit (um)
-inline double effective_radius_hollow_column(double r_vol_um) {
+constexpr double effective_radius_hollow_column(double r_vol_um) {
     double r_eff_um = (
         0.2281 * std::exp(-(7.359e-3 * r_vol_um)) + 0.5651 * std::exp(-(3.350e-4 * r_vol_um))
     ) * r_vol_um;
@@ -55,7 +55,7 @@ constexpr double effective_radius_rough_aggregate(double r_vol_um) {
 }
 
 // Effective radius of an ice crystal with a rosette habit (um)
-inline double effective_radius_rosette(double r_vol_um) {
+constexpr double effective_radius_rosette(double r_vol_um) {
     double r_eff_um = r_vol_um * (
         0.1770 * std::exp(-(2.144e-2 * r_vol_um)) + 0.4267 * std::exp(-(3.562e-4 * r_vol_um))
     );
@@ -63,7 +63,7 @@ inline double effective_radius_rosette(double r_vol_um) {
 }
 
 // Effective radius of an ice crystal with a plate habit (um)
-inline double effective_radius_plate(double r_vol_um) {
+constexpr double effective_radius_plate(double r_vol_um) {
     double r_eff_um = r_vol_um * (
         0.1663 + 0.3713 * std::exp(-(0.0336 * r_vol_um)) + 0.3309 * std::exp(-(0.0035 * r_vol_um))
     );

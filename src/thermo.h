@@ -46,7 +46,7 @@ constexpr double e_sat_liquid(double T) {
 }
 
 // Calculate the derivate of mk05_e_sat_liquid (Pa K-1)
-inline double mk05_e_sat_liquid_prime(double T) {
+constexpr double mk05_e_sat_liquid_prime(double T) {
     double tanh_term = std::tanh(0.0415 * (T - 218.8));
     return mk05_e_sat_liquid(T) * (
         6763.22 / (T*T)
@@ -62,7 +62,7 @@ inline double mk05_e_sat_liquid_prime(double T) {
 // Calculate the derivative of saturation water vapor pressure with respect to liquid water
 // (Pa K-1) given T (K)
 // Configured to return mk05_e_sat_liquid_prime(T)
-inline double e_sat_liquid_prime(double T) {
+constexpr double e_sat_liquid_prime(double T) {
     return mk05_e_sat_liquid_prime(T);
 }
 

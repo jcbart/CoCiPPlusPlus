@@ -18,7 +18,7 @@ constexpr double height_to_geopt_height(double z) {
 // Calculate the effective extinction coefficient for spectral range 0.2-0.69 um (m-1)
 // for layer with cloud ice water content ciwc (kg (kg dry air)-1), temperature T (K),
 // and pressure P (Pa)
-inline double cirrus_effective_extinction_coef(double ciwc, double T, double P) {
+constexpr double cirrus_effective_extinction_coef(double ciwc, double T, double P) {
     ciwc = std::max(0., ciwc);
     const double a_0_beta = -1.30817e-4;
     const double a_1_beta = 2.52883e0;

@@ -1,13 +1,13 @@
 # CoCiP++
 
-CoCiP++ is a work-in-progress C++11 implementation of the Contrail Cirrus Prediction tool (CoCiP).
+CoCiP++ is a work-in-progress C++20 implementation of the Contrail Cirrus Prediction tool (CoCiP).
 
 It is designed to be used both as a standalone program and as a library.
 
 ## Compilation
 
 ### System requirements
-- C++ compiler supporting C++11 or later
+- C++ compiler supporting C++20
 - CMake
 - Git
 

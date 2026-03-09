@@ -63,7 +63,7 @@ constexpr double ice_particle_activation_rate(double air_temperature,
 }
 
 // Determine if contrail is initially "persistent" (not the same as rh_i > 100%)
-inline bool initial_persistent(double iwc_post_vortex, double rh_i) {
+constexpr bool initial_persistent(double iwc_post_vortex, double rh_i) {
     bool persistent = ((iwc_post_vortex > 1e-12) && (iwc_post_vortex < 1e10)
                        && (rh_i > 0) && (rh_i < 1e10));
     return persistent;
@@ -153,14 +153,14 @@ double contrail_optical_depth(double r_ice_vol, double n_ice_per_m,
     double width);
 
 // Calculate the phase delay of the light wave passing through the contrail ice particle (rad)
-inline double light_wave_phase_delay(double r_ice_vol) {
+constexpr double light_wave_phase_delay(double r_ice_vol) {
     double phase_delay = (4 * constants::PI * (constants::MU_ICE - 1) / constants::LAMBDA_LIGHT)
                          * r_ice_vol;
     return std::min(100., phase_delay);
 }
 
 // Calculate the scattering extinction efficiency based on Mie-theory ()
-inline double scattering_extinction_efficiency(double r_ice_vol) {
+constexpr double scattering_extinction_efficiency(double r_ice_vol) {
     double phase_delay = light_wave_phase_delay(r_ice_vol);
     return (
         2 - (4 / phase_delay)
