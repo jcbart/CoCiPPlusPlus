@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 # Submodules
 
 if(COCIP_USE_EXTERNAL_LIBRARIES)
-    find_package(yaml-cpp REQUIRED)
+    find_package(yaml-cpp CONFIG REQUIRED)
 else()
     set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
@@ -42,7 +42,8 @@ add_library(build_config INTERFACE)
 target_compile_features(build_config INTERFACE cxx_std_11)
 target_compile_options(build_config INTERFACE -Wall -Wextra)
 target_link_libraries(build_config INTERFACE
-    yaml-cpp
+    # Link to "yaml-cpp::yaml-cpp" if using external dependencies, else internal target "yaml-cpp"
+    "$<IF:$<BOOL:${COCIP_USE_EXTERNAL_LIBRARIES}>,yaml-cpp::yaml-cpp,yaml-cpp>"
 )
 
 # Library sources
