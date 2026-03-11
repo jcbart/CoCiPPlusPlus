@@ -63,7 +63,11 @@ set(LIB_SOURCES
 # Library definition
 
 add_library(cocip STATIC ${LIB_SOURCES})
-target_include_directories(cocip PUBLIC include)
+target_include_directories(cocip
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
 target_link_libraries(cocip PRIVATE build_config)
 
 # Executable definition
