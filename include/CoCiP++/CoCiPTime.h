@@ -22,18 +22,12 @@ struct CoCiPTime {
     }
 
     // Returns true if internal year is a leap year
-    bool is_leap() const {
-        if (yy % 4 == 0) {
-            if (yy % 100 == 0) {
-                return (yy % 400 == 0);
-            }
-            return true;
-        }
-        return false;
+    constexpr bool is_leap() const {
+        return ((yy % 4 == 0 && yy % 100 != 0) || (yy % 400 == 0));
     }
 
     // Returns days (including partial) since the start of the year
-    inline double day_of_year() const {
+    constexpr double day_of_year() const {
         constexpr int DAYS_IN_MONTH[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
         constexpr int DAYS_IN_MONTH_LEAP[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
         
