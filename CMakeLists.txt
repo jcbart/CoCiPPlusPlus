@@ -12,11 +12,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 option(COCIP_BUILD_EXECUTABLE "Build a standalone executable" ON)
+option(COCIP_USE_EXTERNAL_LIBRARIES "Use external libraries instead of bundled" OFF)
 
 message(STATUS "--------------------------------------------")
 message(STATUS "CoCiP++")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Build a standalone executable: ${COCIP_BUILD_EXECUTABLE}")
+message(STATUS "Use external libraries: ${COCIP_USE_EXTERNAL_LIBRARIES}")
 message(STATUS "--------------------------------------------")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
@@ -24,7 +26,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 
 # Submodules
 
-if(NOT TARGET yaml-cpp)
+if(COCIP_USE_EXTERNAL_LIBRARIES)
+    find_package(yaml-cpp REQUIRED)
+else()
     set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
     set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
