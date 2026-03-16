@@ -1,55 +1,77 @@
 #ifndef COCIPTIME_H
 #define COCIPTIME_H
 
-// Struct for storing a datetime: yy-mm-dd h:m:s
-// Does not check if datetime is valid
+#include <chrono>
+
+// Struct for storing a timepoint
+// Wrapper for a std::chrono::sys_time
 struct CoCiPTime {
-    int yy; // year
-    int mm; // month
-    int dd; // day
-    int h; // hour
-    int m; // minute
-    float s; // seconds
+    // Time point - uses milliseconds as precision
+    std::chrono::sys_time<std::chrono::milliseconds> timepoint;
 
-    // Sets the internal variables
-    void set(int yy, int mm, int dd, int h, int m, float s) {
-        this->yy = yy;
-        this->mm = mm;
-        this->dd = dd;
-        this->h = h;
-        this->m = m;
-        this->s = s;
+    // Empty constructor
+    CoCiPTime() {}
+
+    // Constructor from timepoint
+    template<typename Duration>
+    explicit CoCiPTime(std::chrono::sys_time<Duration> timepoint) : timepoint(timepoint) {}
+
+    // Constructor from values
+    CoCiPTime(int year, int month, int day, int hours, int minutes, double seconds) {
+        set(year, month, day, hours, minutes, seconds);
     }
 
-    // Returns true if internal year is a leap year
-    constexpr bool is_leap() const {
-        return ((yy % 4 == 0 && yy % 100 != 0) || (yy % 400 == 0));
+    // Set from timepoint
+    template<typename Duration>
+    void set(std::chrono::sys_time<Duration> timepoint) {
+        this->timepoint = timepoint;
     }
 
-    // Returns days (including partial) since the start of the year
+    // Set from values
+    void set(int year, int month, int day, int hours, int minutes, float seconds) {
+        std::chrono::year_month_day ymd = std::chrono::year{year} / month / day;
+        std::chrono::sys_days date_part{ymd};
+        auto time_part = std::chrono::hours{hours}
+            + std::chrono::minutes(minutes)
+            + std::chrono::duration<double>{seconds};
+        timepoint = std::chrono::time_point_cast<std::chrono::milliseconds>(date_part + time_part);
+    }
+
+    // Returns number of days (including partial) passed since the start of the year
     constexpr double day_of_year() const {
-        constexpr int DAYS_IN_MONTH[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-        constexpr int DAYS_IN_MONTH_LEAP[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        // Time point at start of day
+        std::chrono::sys_time<std::chrono::days> datepoint
+            = std::chrono::floor<std::chrono::days>(timepoint);
         
-        double doy = 0;
-        if (is_leap()) {
-            for (int i = 0; i < mm-1; i++) {
-                doy += DAYS_IN_MONTH_LEAP[i];
-            }
-        }
-        else {
-            for (int i = 0; i < mm-1; i++) {
-                doy += DAYS_IN_MONTH[i];
-            }
-        }
-        doy += dd-1; // 1st day of month means 0 full days have passed in month
-        doy += (h / 24.) + (m / 1440.) + (s / 86400.);
-        return doy;
+        // Start of day as year_month_day
+        std::chrono::year_month_day ymd{datepoint};
+
+        // 1st January of same year as a timepoint
+        auto jan1 = std::chrono::sys_days{ymd.year() / std::chrono::January / 1};
+
+        // Duration between start of day and timepoint
+        std::chrono::milliseconds time_of_day = timepoint - datepoint;
+
+        // Add number of whole days passed and fraction of day
+        // (using ratio instead of duration_cast avoids truncation)
+        return (
+            (datepoint - jan1).count()
+            + std::chrono::duration<double, std::ratio<86400>>(time_of_day).count()
+        );
     }
 
     // Returns hours (including partial) since the start of the day
     constexpr double hour_of_day() const {
-        return h + (m / 60.) + (s / 3600.);
+        // Time point at start of day
+        std::chrono::sys_time<std::chrono::days> datepoint
+            = std::chrono::floor<std::chrono::days>(timepoint);
+        
+        // Duration between start of day and timepoint
+        std::chrono::milliseconds time_of_day = timepoint - datepoint;
+
+        // Convert to hours as a double
+        // (using ratio instead of duration_cast avoids truncation)
+        return std::chrono::duration<double, std::ratio<3600>>(time_of_day).count();
     }
 };
 
