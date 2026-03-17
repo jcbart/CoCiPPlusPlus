@@ -14,7 +14,8 @@ struct CoCiPTime {
 
     // Constructor from timepoint
     template<typename Duration>
-    explicit CoCiPTime(std::chrono::sys_time<Duration> timepoint) : timepoint(timepoint) {}
+    explicit CoCiPTime(std::chrono::sys_time<Duration> timepoint)
+        : timepoint(std::chrono::time_point_cast<std::chrono::milliseconds>(timepoint)) {}
 
     // Constructor from values
     CoCiPTime(int year, int month, int day, int hours, int minutes, double seconds) {
@@ -24,7 +25,7 @@ struct CoCiPTime {
     // Set from timepoint
     template<typename Duration>
     void set(std::chrono::sys_time<Duration> timepoint) {
-        this->timepoint = timepoint;
+        this->timepoint = std::chrono::time_point_cast<std::chrono::milliseconds>(timepoint);
     }
 
     // Set from values
