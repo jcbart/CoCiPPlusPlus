@@ -39,6 +39,7 @@ The project can be compiled in any directory by instead running `cmake /path/to/
 Configuration options that can be used in the `cmake` command are listed below:
 - `-DCMAKE_BUILD_TYPE=Debug`: Compile with debug flags and no optimisation (default is `-DCMAKE_BUILD_TYPE=Release`).
 - `-DCOCIP_BUILD_EXECUTABLE=OFF`: Do not build an executable; only a static library will be built (default is `-DCOCIP_BUILD_EXECUTABLE=ON`).
+- `-DCOCIP_USE_EXTERNAL_LIBRARIES=ON`: CMake will search for required libraries on your system instead of building the Git submodules as internal targets (default is `-DCOCIP_USE_EXTERNAL_LIBRARIES=OFF`).
 
 Finally, run
 ```bash
