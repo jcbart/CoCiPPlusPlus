@@ -64,5 +64,4 @@ aircraft_mass: 70e3
 wingspan: 34
 true_airspeed: 250
 fuel_flow: 0.7
-T_exhaust: 600
 nvpm_ei_n: 1e15

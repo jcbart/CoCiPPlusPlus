@@ -65,7 +65,6 @@ public:
     double wingspan; // Aircraft wingspan (m)
     double true_airspeed; // True airspeed (m s-1)
     double fuel_flow; // Fuel flow (kg s-1)
-    double T_exhaust; // Exhaust temperature (K)
     double nvpm_ei_n; // Emissions index of nvPM (# (kg fuel)-1)
 
     // Formation

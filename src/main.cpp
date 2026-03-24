@@ -42,7 +42,6 @@ struct Config {
     double wingspan;
     double true_airspeed;
     double fuel_flow;
-    double T_exhaust;
     double nvpm_ei_n;
 
     void readYAML(std::string& configPath) {
@@ -77,7 +76,6 @@ struct Config {
         wingspan = node["wingspan"].as<double>();
         true_airspeed = node["true_airspeed"].as<double>();
         fuel_flow = node["fuel_flow"].as<double>();
-        T_exhaust = node["T_exhaust"].as<double>();
         nvpm_ei_n = node["nvpm_ei_n"].as<double>();
     }
 };
@@ -157,7 +155,6 @@ int main(int argc, char* argv[]) {
     cocip.wingspan = config.wingspan;
     cocip.true_airspeed = config.true_airspeed;
     cocip.fuel_flow = config.fuel_flow;
-    cocip.T_exhaust = config.T_exhaust;
     cocip.nvpm_ei_n = config.nvpm_ei_n;
     
     cocip.formation();
