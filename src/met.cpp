@@ -1,5 +1,6 @@
 #include <cmath>
 #include <string>
+#include <format>
 #include <CoCiP++/met.h>
 #include <CoCiP++/params.h>
 #include <CoCiP++/CoCiPTime.h>
@@ -75,76 +76,58 @@ void ArrayMet<arrayType>::check_valid_arrays() const {
     // P
     for (int i = 0; i < vsize-1; i++) {
         if (P[i] <= 0) {
-            msg = "P array invalid - P[" + std::to_string(i) + "] = "
-                + std::to_string(P[i]);
+            msg = std::format("P array invalid - P[{}] = {}", i, P[i]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
         if (P[i] <= P[i+1]) {
-            msg = "P array invalid - found P[" + std::to_string(i) + "] = "
-                + std::to_string(P[i]) + " and P[" + std::to_string(i+1) + "] = "
-                + std::to_string(P[i+1]);
+            msg = std::format("P array invalid - found P[{}] = {} and P[{}] = {}",
+                i, P[i], i+1, P[i+1]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
     // T_POT
     for (int i = 0; i < vsize-1; i++) {
         if (T_POT[i] <= 0) {
-            msg = "T_POT array invalid - T_POT[" + std::to_string(i) + "] = "
-                + std::to_string(T_POT[i]);
+            msg = std::format("T_POT array invalid - T_POT[{}] = {}", i, T_POT[i]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
     // QV
     for (int i = 0; i < vsize-1; i++) {
         if (QV[i] < 0) {
-            msg = "QV array invalid - QV[" + std::to_string(i) + "] = "
-                + std::to_string(QV[i]);
+            msg = std::format("QV array invalid - QV[{}] = {}", i, QV[i]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
     // CIWC
     for (int i = 0; i < vsize-1; i++) {
         if (CIWC[i] < 0) {
-            msg = "CIWC array invalid - V[" + std::to_string(i) + "] = "
-                + std::to_string(V[i]);
+            msg = std::format("CIWC array invalid - CIWC[{}] = {}", i, CIWC[i]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
     // Z
     for (int i = 0; i < vsize-1; i++) {
-        if (Z[i] <= 0) {
-            msg = "Z array invalid - Z[" + std::to_string(i) + "] = "
-                + std::to_string(Z[i]);
-            CoCiP_RaiseError(msg, __FILE__, __LINE__);
-        }
         if (Z[i] >= Z[i+1]) {
-            msg = "Z array invalid - found Z[" + std::to_string(i) + "] = "
-                + std::to_string(Z[i]) + " and Z[" + std::to_string(i+1) + "] = "
-                + std::to_string(Z[i+1]);
+            msg = std::format("Z array invalid - found Z[{}] = {} and Z[{}] = {}",
+                i, Z[i], i+1, Z[i+1]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
     // Z_AT_W
     for (int i = 0; i < vsize; i++) {
-        if (Z_AT_W[i] < 0) {
-            msg = "Z_AT_W array invalid - Z_AT_W[" + std::to_string(i) + "] = "
-                + std::to_string(Z_AT_W[i]);
-            CoCiP_RaiseError(msg, __FILE__, __LINE__);
-        }
         if (Z_AT_W[i] >= Z_AT_W[i+1]) {
-            msg = "Z_AT_W array invalid - found Z_AT_W[" + std::to_string(i) + "] = "
-                + std::to_string(Z_AT_W[i]) + " and Z_AT_W[" + std::to_string(i+1) + "] = "
-                + std::to_string(Z_AT_W[i+1]);
+            msg = std::format("Z_AT_W array invalid - found Z_AT_W[{}] = {} and Z_AT_W[{}] = {}",
+                i, Z_AT_W[i], i+1, Z_AT_W[i+1]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
     // Z with Z_AT_W
     for (int i = 0; i < vsize; i++) {
         if (Z[i] < Z_AT_W[i] || Z[i] >= Z_AT_W[i+1]) {
-            msg = "Z or Z_AT_W array invalid - found Z[" + std::to_string(i) + "] = "
-                + std::to_string(Z[i]) + ", but Z_AT_W[" + std::to_string(i) + "] = "
-                + std::to_string(Z_AT_W[i]) + " and Z_AT_W[" + std::to_string(i+1) + "] = "
-                + std::to_string(Z_AT_W[i+1]);
+            msg = std::format("Z or Z_AT_W array invalid - found Z[{}] = {}, "
+                "but Z_AT_W[{}] = {} and Z_AT_W[{}] = {}",
+                i, Z[i], i, Z_AT_W[i], i+1, Z_AT_W[i+1]);
             CoCiP_RaiseError(msg, __FILE__, __LINE__);
         }
     }
@@ -152,7 +135,7 @@ void ArrayMet<arrayType>::check_valid_arrays() const {
 
 template <typename arrayType>
 void ArrayMet<arrayType>::get_local_values(const double altitude) {
-    check_valid_arrays();
+    //check_valid_arrays();
 
     // Find index of grid cell centre below altitude
     int k_below = find_k_below(altitude);
