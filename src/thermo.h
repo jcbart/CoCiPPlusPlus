@@ -104,7 +104,7 @@ constexpr double T_potential_gradient(double T_top, double P_top, double T_btm,
 
 // Calculate the Brunt-Vaisala frequency (s-1) where dtheta_dz is potential temperature gradient
 constexpr double brunt_vaisala_frequency(double P, double T, double dtheta_dz) {
-    return std::sqrt(dtheta_dz * constants::GRAVITY / T_potential(T, P));
+    return std::sqrt(std::max(1e-6, dtheta_dz) * constants::GRAVITY / T_potential(T, P));
 }
 
 }
