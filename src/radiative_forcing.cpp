@@ -1,7 +1,6 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include <CoCiP++/CoCiPLog.h>
 #include "radiative_forcing.h"
 #include "constants.h"
 
@@ -11,25 +10,6 @@ std::vector<double> radiative_forcing::calc_habit_weights(double r_vol_um,
 
     int idx = habit_weight_regime_idx(r_vol_um, radius_threshold_um);
     return habit_distributions[idx];
-}
-
-int radiative_forcing::habit_weight_regime_idx(double r_vol_um,
-    const std::vector<double>& radius_threshold_um) {
-    
-    if (std::isnan(r_vol_um)) {
-        return 0;
-    }
-    // Return idx such that
-    // num_radius_thresholds[idx-1] <= r_vol_um < num_radius_thresholds[idx]
-    for (size_t idx = 0; idx < radius_threshold_um.size(); idx++) {
-        if (r_vol_um < radius_threshold_um[idx]) {
-            return idx;
-        }
-    }
-    // Else, is larger than the largest threshold
-    const char* msg = "r_vol_um is larger than the maximum of radius_threshold_um.";
-    CoCiP_RaiseError(msg, __FILE__, __LINE__);
-    return -1;
 }
 
 std::vector<double> radiative_forcing::effective_radius_by_habit(double r_vol_um,

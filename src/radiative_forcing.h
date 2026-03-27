@@ -14,8 +14,19 @@ std::vector<double> calc_habit_weights(double r_vol_um,
     const std::vector<double>& radius_threshold_um);
 
 // Determine regime of ice particle habits based on contrail ice particle volume mean radius
-int habit_weight_regime_idx(double r_vol_um,
-    const std::vector<double>& radius_threshold_um);
+constexpr int habit_weight_regime_idx(double r_vol_um,
+    const std::vector<double>& radius_threshold_um) {
+    
+    if (std::isnan(r_vol_um)) {
+        return 0;
+    }
+    // Return idx such that
+    // radius_threshold_um[idx-1] <= r_vol_um < radius_threshold_um[idx]
+    // or idx = len(radius_threshold_um) if r_vol_um >= last threshold
+    return static_cast<int>(
+        std::ranges::upper_bound(radius_threshold_um, r_vol_um) - radius_threshold_um.begin()
+    );
+}
 
 // Calculates a vector of effective radii, one for each ice crystal habit (um)
 // Uses habit_weights to ignore where weight is zero

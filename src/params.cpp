@@ -48,8 +48,8 @@ void Params::readYAML() {
     // Ensure habit_distributions and radius_threshold_um match in size
     if (habit_distributions.size() != 1 + radius_threshold_um.size()) {
         std::string msg = "habit_distributions size must be 1 + radius_threshold_um size\n";
-        msg    += "habit_distributions: " + std::to_string(habit_distributions.size())
-                  + ", radius_threshold_um: " + std::to_string(radius_threshold_um.size());
+        msg += "habit_distributions: " + std::to_string(habit_distributions.size())
+            + ", radius_threshold_um: " + std::to_string(radius_threshold_um.size());
         CoCiP_RaiseError(msg, __FILE__, __LINE__);
     }
 
