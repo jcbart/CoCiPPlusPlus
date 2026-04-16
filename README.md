@@ -89,12 +89,13 @@ The plume will sediment and and alter `CoCiP::altitude`, so ensure that advectio
 
 ## Features
 
-CoCiP++ is based on the [pycontrails](https://github.com/contrailcirrus/pycontrails/) implementation of CoCiP. It is up to date with pycontrails v0.60.3.
+CoCiP++ is based on the [pycontrails](https://github.com/contrailcirrus/pycontrails/) implementation of CoCiP. It is up to date with pycontrails v0.61.0.
 
 Currently, CoCiP++ is missing the following features:
 - Extended K15 model
 - Humidity scaling
 - Contrail contrail overlap
+- Schumann 2025 radiative forcing model
 
 ## Acknowledgements
 

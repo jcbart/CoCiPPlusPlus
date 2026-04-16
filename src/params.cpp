@@ -13,6 +13,8 @@ void Params::readYAML() {
 
     initial_wake_vortex_depth = node["initial_wake_vortex_depth"].as<double>();
 
+    turbulent_vertical_velocity_scale = node["turbulent_vertical_velocity_scale"].as<double>();
+
     sedimentation_impact_factor = node["sedimentation_impact_factor"].as<double>();
 
     wind_shear_enhancement_exponent = node["wind_shear_enhancement_exponent"].as<double>();
@@ -20,24 +22,23 @@ void Params::readYAML() {
     min_ice_particle_number_nvpm_ei_n = (
         node["min_ice_particle_number_nvpm_ei_n"]
         && !node["min_ice_particle_number_nvpm_ei_n"].IsNull()
-        ) ?
-        node["min_ice_particle_number_nvpm_ei_n"].as<double>()
+    ) ? node["min_ice_particle_number_nvpm_ei_n"].as<double>()
         : std::numeric_limits<double>::infinity();
 
-    max_depth = node["max_depth"] ?
-        node["max_depth"].as<double>() : std::numeric_limits<double>::infinity();
+    max_depth = (
+        node["max_depth"]
+        && !node["max_depth"].IsNull()
+    ) ? node["max_depth"].as<double>() : std::numeric_limits<double>::infinity();
 
     max_horizontal_diffusivity = (
         node["max_horizontal_diffusivity"]
         && !node["max_horizontal_diffusivity"].IsNull()
-        ) ?
-        node["max_horizontal_diffusivity"].as<double>() : std::numeric_limits<double>::infinity();
+    ) ? node["max_horizontal_diffusivity"].as<double>() : std::numeric_limits<double>::infinity();
 
     max_vertical_diffusivity = (
         node["max_vertical_diffusivity"]
         && !node["max_vertical_diffusivity"].IsNull()
-        ) ?
-        node["max_vertical_diffusivity"].as<double>() : std::numeric_limits<double>::infinity();
+    ) ? node["max_vertical_diffusivity"].as<double>() : std::numeric_limits<double>::infinity();
 
     radiative_heating_effects = node["radiative_heating_effects"].as<bool>();
 

@@ -80,15 +80,24 @@ double contrail_properties::ice_particle_terminal_fall_speed(double air_pressure
 
 double contrail_properties::vertical_diffusivity(double air_pressure, double air_temperature,
     double dtheta_dz, double depth_eff, double terminal_fall_speed,
-    double sedimentation_impact_factor, double eff_heat_rate, double max_vertical_diffusivity) {
+    double turbulent_vertical_velocity_scale, double sedimentation_impact_factor,
+    std::optional<double> eff_heat_rate, double max_vertical_diffusivity) {
 
     double n_bv = thermo::brunt_vaisala_frequency(air_pressure, air_temperature, dtheta_dz);
-    n_bv = std::max(0.01, n_bv);
-    double cvs = radiative_heating::convective_velocity_scale(depth_eff, eff_heat_rate,
-        air_temperature);
-    cvs = std::max(0.01, cvs);
+    n_bv = std::max(0.001, n_bv);
+
+    double w_prime;
+    if (eff_heat_rate.has_value()) {
+        w_prime = radiative_heating::convective_velocity_scale(depth_eff, *eff_heat_rate,
+            air_temperature);
+        w_prime = std::max(0.01, w_prime);
+    }
+    else {
+        w_prime = turbulent_vertical_velocity_scale;
+    }
     
-    double d_v = cvs / n_bv + sedimentation_impact_factor * terminal_fall_speed * depth_eff;
+    double d_v = w_prime*w_prime / n_bv
+        + sedimentation_impact_factor * terminal_fall_speed * depth_eff;
     return std::min(d_v, max_vertical_diffusivity);
 }
 

@@ -135,8 +135,8 @@ void CoCiP<MetType>::calc_contrail_properties() {
     diffuse_h = contrail_properties::horizontal_diffusivity(met->ds_dz, depth,
         params->max_horizontal_diffusivity);
 
-    // Radiative heating
-    double eff_heat_rate = 0; // = 0 if radiative_heating_effects is false
+    // Radiative heating - has null value by default
+    std::optional<double> eff_heat_rate;
 
     if (params->radiative_heating_effects) {
         double theta_rad = geo::orbital_position(datetime.day_of_year());
@@ -151,8 +151,8 @@ void CoCiP<MetType>::calc_contrail_properties() {
     }
     
     diffuse_v = contrail_properties::vertical_diffusivity(met->air_pressure, met->air_temperature,
-        met->dtheta_dz, depth_eff, terminal_fall_speed, params->sedimentation_impact_factor,
-        eff_heat_rate, params->max_vertical_diffusivity);
+        met->dtheta_dz, depth_eff, terminal_fall_speed, params->turbulent_vertical_velocity_scale,
+        params->sedimentation_impact_factor, eff_heat_rate, params->max_vertical_diffusivity);
 
     dn_dt_agg = contrail_properties::particle_losses_aggregation(r_ice_vol, terminal_fall_speed,
         area_eff);

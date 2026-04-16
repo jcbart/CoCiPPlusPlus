@@ -14,6 +14,9 @@ struct Params {
     // to set the initial contrail depth
     double initial_wake_vortex_depth;
 
+    // Turbulent vertical velocity scale (m s-1)
+    double turbulent_vertical_velocity_scale;
+
     // Sedimentation impact factor
     double sedimentation_impact_factor;
 

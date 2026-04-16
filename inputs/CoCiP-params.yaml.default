@@ -8,6 +8,8 @@ dz_m: 200
 
 initial_wake_vortex_depth: 0.5
 
+turbulent_vertical_velocity_scale: 0.1
+
 sedimentation_impact_factor: 0.5
 
 wind_shear_enhancement_exponent: 0.5

@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <optional>
 #include "thermo.h"
 #include "constants.h"
 
@@ -134,7 +135,8 @@ constexpr double horizontal_diffusivity(double ds_dz, double depth,
 // Calculate contrail vertical diffusivity (m2 s-1)
 double vertical_diffusivity(double air_pressure, double air_temperature,
     double dtheta_dz, double depth_eff, double terminal_fall_speed,
-    double sedimentation_impact_factor, double eff_heat_rate, double max_vertical_diffusivity);
+    double turbulent_vertical_velocity_scale, double sedimentation_impact_factor,
+    std::optional<double> eff_heat_rate, double max_vertical_diffusivity);
 
 // Calculate the rate of contrail ice particle losses due to sedimentation-induced aggregation (# s-1)
 constexpr double particle_losses_aggregation(double r_ice_vol,
