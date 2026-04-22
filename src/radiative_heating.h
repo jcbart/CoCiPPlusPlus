@@ -18,10 +18,16 @@ constexpr double convective_velocity_scale(double depth_eff,
 }
 
 // Calculate effective heating rate (K s-1)
-// pycontrails defines dT_dz as potential temperature gradient, but in this function is defined as
-// temperature gradient
-double effective_heating_rate(double d_heat_rate, double cumul_rad_heat,
-    double dtheta_dz, double depth);
+constexpr double effective_heating_rate(double d_heat_rate, double cumul_rad_heat,
+    double dtheta_dz, double depth) {
+
+    if (cumul_rad_heat <= 0) {
+        return 0;
+    }
+    double heat_denom = std::max(0.5 * dtheta_dz * depth, 0.);
+    double heat_ratio = cumul_rad_heat / (cumul_rad_heat + heat_denom);
+    return (d_heat_rate * heat_ratio);
+}
 
 // Calculate the differential heating rate affecting the contrail plume (K s-1)
 double differential_heating_rate(double air_temperature, double rh_i,

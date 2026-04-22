@@ -51,8 +51,14 @@ constexpr double turbulent_kinetic_energy_dissipation_rate(double ds_dz,
 }
 
 // Calculate the normalized dissipation rate of the sinking wake vortex (units?)
-double normalized_dissipation_rate(double epsilon, double wingspan,
-    double true_airspeed, double aircraft_mass, double rho_air);
+constexpr double normalized_dissipation_rate(double epsilon, double wingspan,
+    double true_airspeed, double aircraft_mass, double rho_air) {
+
+    double c = std::pow(constants::PI/4, 1./3.) * constants::PI*constants::PI*constants::PI / 8;
+    double numer = c * std::pow(epsilon * wingspan, 1./3.) * wingspan*wingspan * rho_air * true_airspeed;
+    double epsn_st = numer / (constants::GRAVITY * aircraft_mass);
+    return std::min(epsn_st, 0.36);
+}
 
 // Calculate the initial contrail width (m)
 constexpr double initial_contrail_width(double wingspan) {

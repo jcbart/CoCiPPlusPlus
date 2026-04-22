@@ -12,11 +12,6 @@ struct Params;
 
 namespace contrail_properties {
 
-// Estimate the initial contrail ice water content (iwc; kg (kg air)-1) before the wake vortex
-// phase
-double initial_iwc(double air_temperature, double specific_humidity,
-    double air_pressure, double fuel_dist, double width, double depth, double ei_h2o);
-
 // Calculate the specific humidity released by water vapor from aircraft emissions
 constexpr double q_exhaust(double air_temperature, double air_pressure,
     double fuel_dist, double width, double depth, double ei_h2o) {
@@ -25,6 +20,16 @@ constexpr double q_exhaust(double air_temperature, double air_pressure,
         (ei_h2o * fuel_dist)
         / ((constants::PI / 4) * width * depth * thermo::rho_d(air_temperature, air_pressure))
     );
+}
+
+// Estimate the initial contrail ice water content (iwc; kg (kg air)-1) before the wake vortex
+// phase
+constexpr double initial_iwc(double air_temperature, double specific_humidity,
+    double air_pressure, double fuel_dist, double width, double depth, double ei_h2o) {
+
+    double q_sat = thermo::q_sat_ice(air_temperature, air_pressure);
+    double q_exh = q_exhaust(air_temperature, air_pressure, fuel_dist, width, depth, ei_h2o);
+    return std::max(q_exh + specific_humidity - q_sat, 0.);
 }
 
 // Calculate the change in ice water content (kg (kg air)-1) due to adiabatic heating from the wake
@@ -75,10 +80,6 @@ constexpr bool initial_persistent(double iwc_post_vortex, double rh_i) {
 bool contrail_persistent(double tau_contrail, double n_ice_per_m3,
     const Params& params);
 
-// Calculate the effective cross-sectional area of the contrail plume (m2)
-double plume_effective_cross_sectional_area(double width, double depth,
-    double sigma_yz);
-
 // Calculate effective cross-sectional area of contrail plume from sigma parameters (m2)
 // This function calculates the same output as plume_effective_cross_sectional_area, but
 // calculated with different input parameters
@@ -86,6 +87,15 @@ constexpr double new_effective_area_from_sigma(double sigma_yy,
     double sigma_zz, double sigma_yz) {
     
     return (2 * constants::PI * std::sqrt(sigma_yy * sigma_zz - sigma_yz*sigma_yz));
+}
+
+// Calculate the effective cross-sectional area of the contrail plume (m2)
+constexpr double plume_effective_cross_sectional_area(double width, double depth,
+    double sigma_yz) {
+
+    double sigma_yy = 0.125 * width*width;
+    double sigma_zz = 0.125 * depth*depth;
+    return new_effective_area_from_sigma(sigma_yy, sigma_zz, sigma_yz);
 }
 
 // Calculate the effective depth of the contrail plume (m)
@@ -114,7 +124,15 @@ constexpr double ice_particle_number_per_mass_of_air(double n_ice_per_vol,
 }
 
 // Calculate the ice particle volume mean radius (m)
-double ice_particle_volume_mean_radius(double iwc, double n_ice_per_kg_air);
+constexpr double ice_particle_volume_mean_radius(double iwc, double n_ice_per_kg_air) {
+    // Force out negative iwc instead of masking
+    double total_ice_volume = std::max(0., iwc) / constants::RHO_ICE; // m3 per kg air
+    double r_ice_vol = std::pow(
+        3. / (4. * constants::PI) * total_ice_volume / n_ice_per_kg_air,
+        1./3.
+    );
+    return std::max(1e-10, r_ice_vol);
+}
 
 // Calculate the terminal fall speed of contrail ice particles (m s-1)
 double ice_particle_terminal_fall_speed(double air_pressure,

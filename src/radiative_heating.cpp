@@ -3,17 +3,6 @@
 #include "radiative_heating.h"
 #include "constants.h"
 
-double radiative_heating::effective_heating_rate(double d_heat_rate, double cumul_rad_heat,
-    double dtheta_dz, double depth) {
-
-    if (cumul_rad_heat <= 0) {
-        return 0;
-    }
-    double heat_denom = std::max(0.5 * dtheta_dz * depth, 0.);
-    double heat_ratio = cumul_rad_heat / (cumul_rad_heat + heat_denom);
-    return (d_heat_rate * heat_ratio);
-}
-
 double radiative_heating::differential_heating_rate(double air_temperature, double rh_i,
     double rho_air, double r_ice_vol, double depth_eff, double tau_contrail, double tau_cirrus,
     double sd0, double sdr, double rsr, double olr) {

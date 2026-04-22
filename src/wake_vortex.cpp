@@ -39,12 +39,3 @@ double wake_vortex::downward_displacement_weakly_stratified(double wingspan, dou
     double epsn_st = normalized_dissipation_rate(epsn, wingspan, true_airspeed, aircraft_mass, rho_air);
     return (b_0 * (7.68 * (1 - 4.07 * epsn_st + 5.67 * epsn_st*epsn_st) * (0.79 - n_bv * t_0) + 1.88));
 }
-
-double wake_vortex::normalized_dissipation_rate(double epsilon, double wingspan,
-    double true_airspeed, double aircraft_mass, double rho_air) {
-    
-    double c = std::pow(constants::PI/4, 1./3.) * constants::PI*constants::PI*constants::PI / 8;
-    double numer = c * std::pow(epsilon * wingspan, 1./3.) * wingspan*wingspan * rho_air * true_airspeed;
-    double epsn_st = numer / (constants::GRAVITY * aircraft_mass);
-    return std::min(epsn_st, 0.36);
-}

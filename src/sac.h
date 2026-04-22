@@ -32,11 +32,7 @@ constexpr double rh_critical_sac(double air_temperature, double T_sat_liq, doubl
     double e_sat_T = thermo::e_sat_liquid(air_temperature);
     double rh_crit = (G * (air_temperature - T_sat_liq) + e_sat_T_sat_liq) / e_sat_T;
     rh_crit = std::max(0., std::min(1., rh_crit));
-
-    if (air_temperature > T_sat_liq) {
-        rh_crit = std::numeric_limits<double>::infinity();
-    }
-    return rh_crit;
+    return (air_temperature > T_sat_liq) ? std::numeric_limits<double>::infinity() : rh_crit;
 }
 
 // Estimate temperature threshold for persistent contrail formation (K)

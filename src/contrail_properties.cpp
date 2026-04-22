@@ -6,14 +6,6 @@
 #include "constants.h"
 #include "thermo.h"
 
-double contrail_properties::initial_iwc(double air_temperature, double specific_humidity,
-    double air_pressure, double fuel_dist, double width, double depth, double ei_h2o) {
-    
-    double q_sat = thermo::q_sat_ice(air_temperature, air_pressure);
-    double q_exh = q_exhaust(air_temperature, air_pressure, fuel_dist, width, depth, ei_h2o);
-    return std::max(q_exh + specific_humidity - q_sat, 0.);
-}
-
 double contrail_properties::iwc_adiabatic_heating(double air_temperature_pre_vortex,
     double air_pressure_pre_vortex, double air_pressure_post_vortex) {
     
@@ -38,24 +30,6 @@ bool contrail_properties::contrail_persistent(double tau_contrail, double n_ice_
     else if (n_ice_per_m3 < params.min_n_ice_per_m3) { return false; }
     else if (n_ice_per_m3 > params.max_n_ice_per_m3) { return false; }
     return true;
-}
-
-double contrail_properties::plume_effective_cross_sectional_area(double width, double depth,
-    double sigma_yz) {
-    
-    double sigma_yy = 0.125 * width*width;
-    double sigma_zz = 0.125 * depth*depth;
-    return new_effective_area_from_sigma(sigma_yy, sigma_zz, sigma_yz);
-}
-
-double contrail_properties::ice_particle_volume_mean_radius(double iwc, double n_ice_per_kg_air) {
-    // Force out negative iwc instead of masking
-    double total_ice_volume = std::max(0., iwc) / constants::RHO_ICE; // m3 per kg air
-    double r_ice_vol = std::pow(
-        3. / (4. * constants::PI) * total_ice_volume / n_ice_per_kg_air,
-        1./3.
-    );
-    return std::max(1e-10, r_ice_vol);
 }
 
 double contrail_properties::ice_particle_terminal_fall_speed(double air_pressure,

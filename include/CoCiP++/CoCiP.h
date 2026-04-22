@@ -75,7 +75,7 @@ public:
     double width = 0; // (m); first set in simulate_wake_vortex_downwash, updated in plume_temporal_evolution
     double depth = 0; // (m); first set in simulate_wake_vortex_downwash, updated in plume_temporal_evolution
     double area_eff = 0; // (m2); first set in calc_contrail_properties
-    double sigma_yz = 0; // What is it? Initially zero, updated in plume_temporal_evolution
+    double sigma_yz = 0; // The yz component of the covariance matrix (m2); initially zero, updated in plume_temporal_evolution
     double n_ice_per_m = 0; // Ice crystal number per unit length (# m-1); first set in initial_properties, updated in calc_timestep_contrail_evolution
     double n_ice_per_vol = 0; // Ice crystal number per unit volume (# m-3); calculated in calc_contrail_properties
     double iwc = 0; // Ice water content (kg (kg air)-1); first set in initial_properties, updated in calc_timestep_contrail_evolution

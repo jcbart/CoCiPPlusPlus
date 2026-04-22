@@ -29,12 +29,7 @@ void CoCiP<MetType>::formation() {
     double T_sat_liq = sac::T_sat_liquid(G);
     double rh_crit_sac = sac::rh_critical_sac(met->air_temperature, T_sat_liq, G);
     double rh = thermo::rh_l(met->specific_humidity, met->air_temperature, met->air_pressure);
-    if (std::isnan(rh) || std::isnan(rh_crit_sac)) {
-        sac = false;
-    }
-    else {
-        sac = (rh > rh_crit_sac);
-    }
+    sac = (std::isfinite(rh) && std::isfinite(rh_crit_sac) && (rh > rh_crit_sac));
     T_crit_sac = sac::T_critical_sac(T_sat_liq, rh, G);
 }
 
