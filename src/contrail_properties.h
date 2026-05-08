@@ -150,6 +150,14 @@ constexpr double horizontal_diffusivity(double ds_dz, double depth,
     return std::min(0.1 * ds_dz * depth*depth, max_horizontal_diffusivity);
 }
 
+// Calculate the contrail phase relaxation rate (s-1) - the inverse of the time scale over which
+// specific humidity inside a contrail relaxes toward saturation due to sublimation or deposition
+constexpr double phase_relaxation_rate(double r_ice_vol, double n_ice_per_vol,
+    double diffusivity_water_vapor) {
+    
+    return 4 * constants::PI * r_ice_vol * n_ice_per_vol * diffusivity_water_vapor;
+}
+
 // Calculate contrail vertical diffusivity (m2 s-1)
 double vertical_diffusivity(double air_pressure, double air_temperature,
     double dtheta_dz, double depth_eff, double terminal_fall_speed,
@@ -188,17 +196,75 @@ constexpr double scattering_extinction_efficiency(double r_ice_vol) {
     );
 }
 
+// Calculate water mass per unit length (kg m-1) taken from the atmosphere due to plume dilution
+// In pycontrails, this is included within new_ice_water_content
+constexpr double delta_mass_h2o_dilution(double q_old, double q_new, double plume_mass_per_m_old,
+    double plume_mass_per_m_new) {
+
+    double q_mean = 0.5 * (q_old + q_new);
+    return (plume_mass_per_m_new - plume_mass_per_m_old) * q_mean;
+}
+
 // Calculate the new contrail ice water content (kg (kg air)-1) after the time integration step
-// given the values before
-double new_ice_water_content(double iwc_old, double q_old, double q_new,
-    double q_sat_old, double q_sat_new, double plume_mass_per_m_old, double plume_mass_per_m_new);
+constexpr double new_ice_water_content(double iwc_old, double q_sat_old, double q_sat_new,
+    double plume_mass_per_m_old, double plume_mass_per_m_new, double delta_mass_h2o_dil) {
+
+    // Total mass of H2O (ice + vapor) per m
+    double mass_h2o_old = plume_mass_per_m_old * (iwc_old + q_sat_old);
+    double mass_h2o_new = mass_h2o_old + delta_mass_h2o_dil;
+    // IWC is assumed to be total H2O specific humidity - saturation vapor specific humdity
+    double iwc_new = std::max(0., (mass_h2o_new / plume_mass_per_m_new) - q_sat_new);
+    return iwc_new;
+}
+
+// Calculate water mass per unit length (kg m-1) taken from the atmosphere due to sedimentation
+// In pycontrails, this is included within new_ice_water_content_revised
+constexpr double delta_mass_h2o_sedimentation_revised(double q_old, double q_sed, double q_sat_old,
+    double q_sat_sed, double plume_mass_per_m_old, double plume_mass_per_m_sed,
+    double depth_eff, double terminal_fall_speed, double phase_relax_rate, double dt_s) {
+    
+    double qa = 0.5 * (q_old + q_sed);
+    double qs = 0.5 * (q_sat_old + q_sat_sed);
+    double m = 0.5 * (plume_mass_per_m_old + plume_mass_per_m_sed);
+    double delta_mass_phase_relax = (
+        m
+        * (qs - qa)
+        * std::expm1(-depth_eff * phase_relax_rate / terminal_fall_speed)
+        * terminal_fall_speed
+        * dt_s
+        / depth_eff
+    );
+
+    return (plume_mass_per_m_sed * q_sat_sed - plume_mass_per_m_old * q_sat_old)
+        + delta_mass_phase_relax;
+}
+
+// Calculate water mass per unit length (kg m-1) taken from the atmosphere due to plume dilution
+// In pycontrails, this is included within new_ice_water_content_revised
+constexpr double delta_mass_h2o_dilution_revised(double q_sed, double q_new, double plume_mass_per_m_sed,
+    double plume_mass_per_m_new) {
+
+    double qa = 0.5 * (q_sed + q_new);
+    return (plume_mass_per_m_new - plume_mass_per_m_sed) * qa;
+}
+
+// Calculate the new contrail ice water content (kg (kg air)-1) after the time integration step
+constexpr double new_ice_water_content_revised(double iwc_old, double q_sat_old, double q_sat_new,
+    double plume_mass_per_m_old, double plume_mass_per_m_new, double delta_mass_h2o_sed,
+    double delta_mass_h2o_dil) {
+
+    double mass_h2o_old = plume_mass_per_m_old * (iwc_old + q_sat_old);
+    double mass_h2o_new = mass_h2o_old + delta_mass_h2o_dil + delta_mass_h2o_sed;
+    double iwc_new = std::max(0., (mass_h2o_new / plume_mass_per_m_new) - q_sat_new);
+    return iwc_new;
+}
 
 // Calculate the number of ice particles per distance at the end of the time step (# m-1)
 double new_ice_particle_number(double n_ice_per_m, double dn_dt_agg,
     double dn_dt_turb, double length_ratio, double dt_s);
 
-// Calculate contrail altitude after settling for time step dt (s)
-constexpr double altitude_after_settling(double altitude,
+// Calculate contrail altitude after sedimenting for time step dt (s)
+constexpr double altitude_after_sedimentation(double altitude,
     double terminal_fall_speed, double dt_s) {
     
     return (altitude - terminal_fall_speed * dt_s);

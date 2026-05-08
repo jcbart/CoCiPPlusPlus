@@ -23,7 +23,7 @@ template class CoCiP<ArrayMet<double>>;
 template <typename MetType>
 void CoCiP<MetType>::formation() {
     // Calculate local met variables
-    update_met_calculations();
+    update_local_met_values();
     double G = sac::slope_mixing_line(met->specific_humidity, met->air_pressure, engine_efficiency,
         ei_h2o, q_fuel);
     double T_sat_liq = sac::T_sat_liquid(G);
@@ -35,7 +35,7 @@ void CoCiP<MetType>::formation() {
 
 template <typename MetType>
 void CoCiP<MetType>::simulate_wake_vortex_downwash() {
-    update_met_calculations();
+    update_local_met_values();
 
     // Initial contrail width, depth, and downward displacement
     double dz_max = wake_vortex::max_downward_displacement(wingspan, true_airspeed, aircraft_mass,
@@ -56,7 +56,7 @@ void CoCiP<MetType>::initial_properties() {
     double air_temperature_pre_vortex = met->air_temperature;
     double specific_humidity_pre_vortex = met->specific_humidity;
     // Update local meteorology after change in altitude
-    update_met_calculations();
+    update_local_met_values();
 
     // Ignoring humidity scaling
 
@@ -96,6 +96,9 @@ void CoCiP<MetType>::initial_properties() {
     persistent = contrail_properties::initial_persistent(iwc, met->rh_i);
 
     // Persistent => is downwash flight
+
+    // Save altitude for revised_contrail_ice_budget
+    altitude_old = altitude;
 }
 
 template <typename MetType>
@@ -106,8 +109,8 @@ void CoCiP<MetType>::set_heading(const double a) {
 }
 
 template <typename MetType>
-void CoCiP<MetType>::update_met_calculations() {
-    met->calc_variables(altitude, cumul_heat, depth, cos_a, sin_a, longitude, latitude, datetime,
+void CoCiP<MetType>::update_local_met_values() {
+    met->calc_variables(datetime, altitude, longitude, latitude, cos_a, sin_a, depth, cumul_heat,
         *params);
 }
 
@@ -177,7 +180,7 @@ void CoCiP<MetType>::calc_radiative_properties() {
 template <typename MetType>
 void CoCiP<MetType>::process_downwash_flight(const double a) {
     set_heading(a);
-    update_met_calculations();
+    update_local_met_values();
     calc_contrail_properties();
     calc_radiative_properties();
 }
@@ -221,7 +224,11 @@ void CoCiP<MetType>::plume_temporal_evolution(const double length_ratio, const d
 template <typename MetType>
 void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio, const double dt_s) {
     // Altitude is updated here to better suit the order of calculations
-    altitude = contrail_properties::altitude_after_settling(altitude, terminal_fall_speed, dt_s);
+    altitude = contrail_properties::altitude_after_sedimentation(altitude, terminal_fall_speed, dt_s);
+
+    // Save values needed for revised_contrail_ice_budget
+    double width_old = width;
+    double area_eff_old = area_eff;
 
     // Update plume parameters including width, depth, and area_eff
     // Like pycontrails, uses the values from previous time step
@@ -234,7 +241,7 @@ void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio,
     }
     cumul_differential_heat -= d_heat_rate * dt_s;
 
-    update_met_calculations();
+    update_local_met_values();
 
     // Calculate new plume mass per distance using new area_eff and rho_air
     double plume_mass_per_m_new = contrail_properties::plume_mass_per_distance(area_eff,
@@ -242,8 +249,54 @@ void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio,
     
     double q_sat = thermo::q_sat_ice(met->air_temperature, met->air_pressure);
     double q_sat_old = thermo::q_sat_ice(met->air_temperature_old, met->air_pressure_old);
-    double iwc_new = contrail_properties::new_ice_water_content(iwc, met->specific_humidity_old,
-        met->specific_humidity, q_sat_old, q_sat, plume_mass_per_m, plume_mass_per_m_new);
+    
+    double iwc_new;
+    if (params->revised_contrail_ice_budget) {
+        // Find altitude contrail would have had now if no advection
+        double altitude_sed = contrail_properties::altitude_after_sedimentation(altitude_old,
+            terminal_fall_speed, dt_s);
+        
+        // Get values at that altitude
+        double air_pressure_sed, air_temperature_sed, specific_humidity_sed;
+        met->get_sedimented_values(altitude_sed, air_pressure_sed, air_temperature_sed,
+            specific_humidity_sed);
+        double q_sat_sed = thermo::q_sat_ice(air_temperature_sed, air_pressure_sed);
+        double plume_mass_per_m_sed = contrail_properties::plume_mass_per_distance(area_eff_old,
+            thermo::rho_d(air_temperature_sed, air_pressure_sed));
+        
+        double depth_eff_old = contrail_properties::plume_effective_depth(width_old, area_eff_old);
+
+        double vapor_diffusivity = thermo::diffusivity_water_vapor(met->air_temperature_old,
+            met->air_pressure_old);
+        
+        double phase_relax_rate = contrail_properties::phase_relaxation_rate(r_ice_vol,
+            n_ice_per_vol, vapor_diffusivity);
+
+        delta_mass_h2o_sed = contrail_properties::delta_mass_h2o_sedimentation_revised(
+            met->specific_humidity_old, specific_humidity_sed, q_sat_old, q_sat_sed,
+            plume_mass_per_m, plume_mass_per_m_sed, depth_eff_old, terminal_fall_speed,
+            phase_relax_rate, dt_s
+        );
+
+        delta_mass_h2o_dil = contrail_properties::delta_mass_h2o_dilution_revised(
+            specific_humidity_sed, met->specific_humidity,
+            plume_mass_per_m_sed, plume_mass_per_m_new
+        );
+        
+        iwc_new = contrail_properties::new_ice_water_content_revised(iwc, q_sat_old, q_sat,
+            plume_mass_per_m, plume_mass_per_m_new, delta_mass_h2o_sed, delta_mass_h2o_dil);
+    }
+    else {
+        delta_mass_h2o_sed = 0; // A feature of this option
+
+        delta_mass_h2o_dil = contrail_properties::delta_mass_h2o_dilution(
+            met->specific_humidity_old, met->specific_humidity,
+            plume_mass_per_m, plume_mass_per_m_new
+        );
+
+        iwc_new = contrail_properties::new_ice_water_content(iwc, q_sat_old, q_sat,
+            plume_mass_per_m, plume_mass_per_m_new, delta_mass_h2o_dil);
+    }
     
     double n_ice_per_m_new = contrail_properties::new_ice_particle_number(n_ice_per_m, dn_dt_agg,
         dn_dt_turb, length_ratio, dt_s);
@@ -257,12 +310,11 @@ void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio,
     calc_radiative_properties();
     
     persistent = contrail_properties::contrail_persistent(tau_contrail, n_ice_per_vol, *params);
-    
-    // No energy forcing because requires length, can be calculated externally if desired
 }
 
 template <typename MetType>
 void CoCiP<MetType>::evolve(const double length_ratio, const double a, const double dt_s) {
+    
     // calc_continuous not required (do not need to know segment chain)
     
     // Set heading angle; required for calculating wind shear normal used in
@@ -272,4 +324,7 @@ void CoCiP<MetType>::evolve(const double length_ratio, const double a, const dou
     calc_timestep_contrail_evolution(length_ratio, dt_s);
 
     // Ignore contrail contrail overlapping at least for now
+
+    // Save altitude for revised_contrail_ice_budget
+    altitude_old = altitude;
 }

@@ -191,10 +191,11 @@ int main(int argc, char* argv[]) {
         }
 
         if (!cocip.persistent) {
-            CoCiP_LogWrite("Finished: Not persistent at " + std::to_string(time_elapsed_m) + " m");
+            CoCiP_LogWrite(std::format("Finished: Not persistent at {} m", time_elapsed_m));
             exit(EXIT_SUCCESS);
         }
     }
 
+    CoCiP_LogWrite(std::format("Finished: Contrail still present at {} m", time_elapsed_m));
     return 0;
 }

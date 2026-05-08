@@ -12,8 +12,9 @@
 
 // IMet
 
-void IMet::calc_variables(double altitude, double cumul_heat, double depth, double cos_a, double sin_a,
-    double longitude, double latitude, CoCiPTime& datetime, const Params& params) {
+void IMet::calc_variables(const CoCiPTime& datetime, const double altitude, const double longitude,
+    const double latitude, const double cos_a, const double sin_a, const double depth,
+    const double cumul_heat, const Params& params) {
     
     // Save required values from last time step
     air_pressure_old = air_pressure;
@@ -27,7 +28,7 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
 
     // Potential temperature gradient
     dtheta_dz = thermo::T_potential_gradient(air_temperature, air_pressure,
-                                             air_temperature_lower, air_pressure_lower, dz_m);
+        air_temperature_lower, air_pressure_lower, dz_m);
     
     // Wind shear
     ds_dz = wind_shear::wind_shear(u_wind, u_wind_lower, v_wind, v_wind_lower, dz_m);
@@ -51,6 +52,9 @@ void IMet::calc_variables(double altitude, double cumul_heat, double depth, doub
     sdr = geo::solar_direct_radiation(longitude, latitude, datetime, 0.01);
 
     rsr = std::max(sdr - tnsr, 0.);
+
+    // Calculate values at sedimented altitude
+
 }
 
 // ArrayMet
@@ -134,7 +138,21 @@ void ArrayMet<arrayType>::check_valid_arrays() const {
 }
 
 template <typename arrayType>
+void ArrayMet<arrayType>::get_sedimented_values(const double altitude_sed,
+    double& air_pressure_sed, double& air_temperature_sed, double& specific_humidity_sed) {
+    
+    int k_below_sed = find_k_below(altitude_sed);
+    double interp_fraction_sed = calc_interp_fraction(altitude_sed, k_below_sed);
+    air_pressure_sed = interp_P(k_below_sed, interp_fraction_sed);
+    air_temperature_sed = thermo::T_from_T_potential(
+        interp_T_POT(k_below_sed, interp_fraction_sed), air_pressure_sed
+    );
+    specific_humidity_sed = interp_QV(k_below_sed, interp_fraction_sed);
+}
+
+template <typename arrayType>
 void ArrayMet<arrayType>::get_local_values(const double altitude) {
+    
     //check_valid_arrays();
 
     // Find index of grid cell centre below altitude
@@ -191,6 +209,30 @@ double ArrayMet<arrayType>::calc_tau_cirrus(const double altitude) const {
 
 // SimpleMet
 
+void SimpleMet::get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
+    double& air_temperature_sed, double& specific_humidity_sed) {
+    
+    air_temperature_sed = T0 - lapse_rate * (altitude_sed - z0);
+
+    air_pressure_sed = P0 * std::pow(
+        air_temperature_sed / T0,
+        constants::M_d * constants::GRAVITY / (constants::R * lapse_rate)
+    );
+
+    double rh_i_temp;
+    if (std::abs(altitude_sed - z0) < D1) {
+        rh_i_temp = rh_i1;
+    }
+    else if (std::abs(altitude_sed - z0) < D1 + DT) {
+        rh_i_temp = rh_i1 + (std::abs(altitude_sed - z0) - D1) * (rh_i0 - rh_i1) / DT;
+    }
+    else {
+        rh_i_temp = rh_i0;
+    }
+
+    specific_humidity_sed = rh_i_temp * thermo::q_sat_ice(air_temperature_sed, air_pressure_sed);
+}
+
 void SimpleMet::get_local_values(const double altitude) {
     // Remove cmath and constants and move to thermo
 
@@ -215,7 +257,6 @@ void SimpleMet::get_local_values(const double altitude) {
         rh_i_temp = rh_i1;
     }
     else if (std::abs(altitude - z0) < D1 + DT) {
-        // Check this
         rh_i_temp = rh_i1 + (std::abs(altitude - z0) - D1) * (rh_i0 - rh_i1) / DT;
     }
     else {

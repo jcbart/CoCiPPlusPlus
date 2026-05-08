@@ -72,6 +72,8 @@ void Params::readYAML() {
         }
     }
 
+    revised_contrail_ice_budget = node["revised_contrail_ice_budget"].as<bool>();
+
     rf_sw_enhancement_factor = node["rf_sw_enhancement_factor"].as<double>();
 
     rf_lw_enhancement_factor = node["rf_lw_enhancement_factor"].as<double>();

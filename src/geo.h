@@ -52,8 +52,8 @@ constexpr double solar_hour_angle(double longitude, double hour, double theta_ra
 }
 
 // Calculate the cosine of the solar zenith angle (radians)
-constexpr double cosine_solar_zenith_angle(double longitude, double latitude, CoCiPTime& datetime,
-    double theta_rad) {
+constexpr double cosine_solar_zenith_angle(double longitude, double latitude,
+    const CoCiPTime& datetime, double theta_rad) {
     
     double lat_rad = constants::RAD_PER_DEG * latitude;
     double sdec_rad = constants::RAD_PER_DEG * solar_declination_angle(theta_rad);
@@ -66,7 +66,7 @@ constexpr double cosine_solar_zenith_angle(double longitude, double latitude, Co
 }
 
 // Calculate the instantaneous theoretical solar direct radiation (SDR; W m-2)
-constexpr double solar_direct_radiation(double longitude, double latitude, CoCiPTime& datetime,
+constexpr double solar_direct_radiation(double longitude, double latitude, const CoCiPTime& datetime,
     double threshold_cos_sza = 0) {
     
     double theta_rad = orbital_position(datetime.day_of_year());

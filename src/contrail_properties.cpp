@@ -95,18 +95,6 @@ double contrail_properties::contrail_optical_depth(double r_ice_vol, double n_ic
     return std::max(0., tau_contrail);
 }
 
-double contrail_properties::new_ice_water_content(double iwc_old, double q_old, double q_new,
-    double q_sat_old, double q_sat_new, double plume_mass_per_m_old, double plume_mass_per_m_new) {
-    
-    double q_mean = 0.5 * (q_old + q_new);
-    // Total mass of H2O (ice + vapor) per m
-    double mass_h2o_old = plume_mass_per_m_old * (iwc_old + q_sat_old);
-    double mass_h2o_new = mass_h2o_old + (plume_mass_per_m_new - plume_mass_per_m_old) * q_mean;
-    // IWC is assumed to be total H2O specific humidity - saturation vapor specific humdity
-    double iwc_new = std::max(0., (mass_h2o_new / plume_mass_per_m_new) - q_sat_new);
-    return iwc_new;
-}
-
 double contrail_properties::new_ice_particle_number(double n_ice_per_m, double dn_dt_agg,
     double dn_dt_turb, double length_ratio, double dt_s) {
     

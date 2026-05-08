@@ -17,7 +17,7 @@ private:
     // calc_outgoing_longwave_radiation
     // Must only call once per timestep so _old values are correct
     // Ambient and contrail air temperatures (and so RH etc) are conflated
-    void update_met_calculations();
+    void update_local_met_values();
 
     // Calculate contrail properties
     // Only called at end of time step in line with pycontrails meaning variables used in time step
@@ -43,7 +43,7 @@ private:
     void plume_temporal_evolution(const double length_ratio, const double dt_s);
 
 public:
-    // Pointer to meteorology object (derived IMet struct)
+    // Pointer to meteorology object
     std::unique_ptr<MetType> met;
 
     // Pointer to params
@@ -51,7 +51,8 @@ public:
 
     double longitude; // (degrees); only for calculating solar direction radiation and must be driven externally
     double latitude; // (degrees); only for calculating solar direction radiation and must be driven externally
-    double altitude; // (m); updated by initial_properties and altitude_after_settling, but should also be driven externally by advection
+    double altitude; // (m); updated by initial_properties and altitude_after_sedimentation, but should also be driven externally by advection
+    double altitude_old; // Altitude at end of last time step (m); saved in evolve in case needed for revised_contrail_ice_budget
     CoCiPTime datetime;
 
     double sin_a; // Sin of angle between contrail and longitude axis; set in evolve
@@ -94,8 +95,10 @@ public:
     double rf_net = 0; // Net radiative forcing (rf_lw + rf_sw) (W m-2); calculated in calc_radiative_properties
     double cumul_heat = 0; // Cumulative heat of contrail relative to ambient air due to absorbing radiation (K); updated in calc_timestep_contrail_evolution
     double cumul_differential_heat = 0; // Cumulative differential heat of contrail (K); updated in calc_timestep_contrail_evolution
-    // No energy forcing because requires length, can be calculated externally if desired
     bool persistent = false; // True if contrail survives time step; first set in initial_proprties, updated in calc_timestep_contrail_evolution
+
+    double delta_mass_h2o_sed = 0; // Water mass per unit length taken from the atmosphere due to sedimentation (kg m-1)
+    double delta_mass_h2o_dil = 0; // Water mass per unit length taken from the atmosphere due to plume dilution (kg m-1)
 
     // Determine if contrail forms; CoCiP::sac is true if so
     // Must be called externally once

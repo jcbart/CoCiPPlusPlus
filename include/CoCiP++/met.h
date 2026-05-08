@@ -50,12 +50,17 @@ struct IMet {
 
     virtual ~IMet() = default;
 
-    void calc_variables(double altitude, double cumul_heat, double depth, double cos_a, double sin_a,
-        double longitude, double latitude, CoCiPTime& datetime, const Params& params);
+    void calc_variables(const CoCiPTime& datetime, const double altitude, const double longitude,
+        const double latitude, const double cos_a, const double sin_a, const double depth,
+        const double cumul_heat, const Params& params);
+
+    // Virtual method called by parent which uses a sedimented altitude to save the local values
+    // at that altitude using type-specific method
+    virtual void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
+        double& air_temperature_sed, double& specific_humidity_sed) = 0;
 
 private:
-    // Virtual method called by calc_variables to update the local variables using type-specific
-    // method
+    // Virtual method called by calc_variables to update the local variables using type-specific method
     virtual void get_local_values(const double altitude) = 0;
     
     // Virtual method to calculate cirrus optical depth at contrail level ()
@@ -91,9 +96,10 @@ struct ArrayMet : public IMet {
                 return k_trial;
             }
         }
-        std::string msg = "altitude " + std::to_string(altitude)
-            + " m is not in Z_AT_W range (min: " + std::to_string(Z_AT_W[0])
-            + ", max: " + std::to_string(Z_AT_W[vsize]) + ")";
+        std::string msg = std::format(
+            "altitude {} m is not in Z_AT_W range (min: {}, max: {})",
+            altitude, Z_AT_W[0], Z_AT_W[vsize]
+        );
         CoCiP_RaiseError(msg, __FILE__, __LINE__);
         return -1;
     }
@@ -106,9 +112,10 @@ struct ArrayMet : public IMet {
                 return k_trial;
             }
         }
-        std::string msg = "altitude " + std::to_string(altitude)
-            + " m is not in Z range (min: " + std::to_string(Z[0])
-            + ", max: " + std::to_string(Z[vsize-1]) + ")";
+        std::string msg = std::format(
+            "altitude {} m is not in Z range (min: {}, max: {})",
+            altitude, Z[0], Z[vsize-1]
+        );
         CoCiP_RaiseError(msg, __FILE__, __LINE__);
         return -1;
     }
@@ -151,6 +158,9 @@ struct ArrayMet : public IMet {
         return (V[k_below] + interp_fraction * (V[k_below + 1] - V[k_below]));
     }
 
+    void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
+        double& air_temperature_sed, double& specific_humidity_sed) override;
+
 private:
     void get_local_values(const double altitude) override;
 
@@ -178,6 +188,9 @@ struct SimpleMet : public IMet {
     
         effective_vertical_resolution = 0;
     }
+
+    void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
+        double& air_temperature_sed, double& specific_humidity_sed) override;
 
 private:
     void get_local_values(const double altitude) override;

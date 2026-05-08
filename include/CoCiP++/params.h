@@ -47,6 +47,9 @@ struct Params {
 
     double rf_lw_enhancement_factor;
 
+    // Use revised contrail ice budget
+    bool revised_contrail_ice_budget;
+
     // Minimum contrail optical depth
     double min_tau;
 

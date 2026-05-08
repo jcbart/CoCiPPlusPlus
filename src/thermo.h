@@ -16,6 +16,15 @@ constexpr double c_pm(double q) {
     return (constants::c_pd * (1 - q) + constants::c_pv * q);
 }
 
+// Calculate molecular diffusivity of water vapor (m2 s-1)
+constexpr double diffusivity_water_vapor(double T, double P) {
+    // Clip between -40 and 40 C
+    T = std::max(-40 - constants::ABSOLUTE_ZERO, std::min(40 - constants::ABSOLUTE_ZERO, T));
+    constexpr double T0 = 273.15;
+    constexpr double P0 = 101325;
+    return 0.0000211 * std::pow(T / T0, 1.94) * (P0 / P);
+}
+
 // Calculate saturation pressure of water vapor over ice (Pa) given T (K) according to Sonntag (1994)
 constexpr double e_sat_ice(double T) {
     return (100.0 * std::exp(

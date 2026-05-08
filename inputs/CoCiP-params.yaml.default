@@ -38,6 +38,8 @@ rf_sw_enhancement_factor: 1
 
 rf_lw_enhancement_factor: 1
 
+revised_contrail_ice_budget: false
+
 min_tau: 1e-6
 
 max_tau: 1e10
