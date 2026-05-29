@@ -64,7 +64,7 @@ double contrail_properties::vertical_diffusivity(double air_pressure, double air
     if (eff_heat_rate.has_value()) {
         w_prime = radiative_heating::convective_velocity_scale(depth_eff, *eff_heat_rate,
             air_temperature);
-        w_prime = std::max(0.01, w_prime);
+        w_prime = std::max(turbulent_vertical_velocity_scale, w_prime);
     }
     else {
         w_prime = turbulent_vertical_velocity_scale;
