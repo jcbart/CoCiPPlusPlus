@@ -27,8 +27,8 @@ private:
     // Calculate radiative properties for contrail
     void calc_radiative_properties();
 
-    // Updates sin_a and cos_a internally where a is angle in degrees between segment and
-    // longitudinal axis
+    // Updates sin_a and cos_a internally where a is ACW angle in degrees between longitudinal
+    // axis and segment heading
     // See pycontrails physics.geo.segment_angle
     void set_heading(const double a);
 
@@ -114,7 +114,7 @@ public:
     void initial_properties();
 
     // Initialise and calculate properties of a contrail which survives the downwash vortex
-    // a is angle in degrees between segment and longitudinal axis (to update heading)
+    // a is ACW angle in degrees between longitudinal axis and segment heading
     // Similar to pycontrails' _process_downwash_flight
     // Must be called externally once
     void process_downwash_flight(const double a);
@@ -122,7 +122,7 @@ public:
     // Evolve contrail by time step dt (s)
     // Advection through the time step should have already occurred giving
     // length_ratio = old_length / new_length
-    // a is angle in degrees between segment and longitudinal axis (to update heading)
+    // a is ACW angle in degrees between longitudinal axis and segment heading
     // Similar to the contents of the loop in pycontrails' _simulate_contrail_evolution
     // Must be driven externally each time step
     void evolve(const double length_ratio, const double a, const double dt_s);
