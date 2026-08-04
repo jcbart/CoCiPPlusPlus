@@ -9,6 +9,8 @@
 void Params::readYAML() {
     YAML::Node node = YAML::LoadFile("CoCiP-params.yaml");
 
+    interp_with_pressure = node["interp_with_pressure"].as<bool>();
+
     dz_m = node["dz_m"].as<double>();
 
     initial_wake_vortex_depth = node["initial_wake_vortex_depth"].as<double>();

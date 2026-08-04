@@ -51,7 +51,7 @@ public:
 
     double longitude; // (degrees); only for calculating solar direction radiation and must be driven externally
     double latitude; // (degrees); only for calculating solar direction radiation and must be driven externally
-    double altitude; // (m); updated by initial_properties and altitude_after_sedimentation, but should also be driven externally by advection
+    double altitude; // Altitude (geopotential height; m); updated by initial_properties and altitude_after_sedimentation, but should also be driven externally by advection
     double altitude_old; // Altitude at end of last time step (m); saved in evolve in case needed for revised_contrail_ice_budget
     CoCiPTime datetime;
 

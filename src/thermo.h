@@ -101,7 +101,7 @@ constexpr double T_potential(double T, double P) {
 
 // Calculate temperature (K) given potential temperature (K) and air pressure (Pa)
 constexpr double T_from_T_potential(double T_pot, double P) {
-    return T_pot * std::pow(P / constants::P_SURFACE, constants::R_d / constants::c_pd);
+     return T_pot * std::pow(P / constants::P_REF, constants::R_d / constants::c_pd);
 }
 
 // Calculate the potential temperature gradient (K m-1) between two altitudes

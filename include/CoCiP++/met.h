@@ -57,11 +57,11 @@ struct IMet {
     // Virtual method called by parent which uses a sedimented altitude to save the local values
     // at that altitude using type-specific method
     virtual void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
-        double& air_temperature_sed, double& specific_humidity_sed) = 0;
+        double& air_temperature_sed, double& specific_humidity_sed, const Params& params) = 0;
 
 private:
     // Virtual method called by calc_variables to update the local variables using type-specific method
-    virtual void get_local_values(const double altitude) = 0;
+    virtual void get_local_values(const double altitude, const Params& params) = 0;
     
     // Virtual method to calculate cirrus optical depth at contrail level ()
     virtual double calc_tau_cirrus(const double altitude) const = 0;
@@ -79,8 +79,8 @@ struct ArrayMet : public IMet {
     arrayType* U = nullptr; // Eastward wind (m s-1)
     arrayType* V = nullptr; // Northward wind (m s-1)
     arrayType* CIWC = nullptr; // Cloud ice water mixing ratio (kg (kg dry air)-1)
-    arrayType* Z = nullptr; // Altitude at grid cell centres (m)
-    arrayType* Z_AT_W = nullptr; // Altitude at grid cell boundaries (m); array len is 1 larger
+    arrayType* Z = nullptr; // Geopotential height at grid cell centres (m)
+    arrayType* Z_AT_W = nullptr; // Geopotential height at grid cell boundaries (m); array len is 1 larger
 
     // Initialise Met object with unstaggered vertical length
     ArrayMet(double dz_m, int vsize) : IMet(dz_m), vsize(vsize) {}
@@ -121,48 +121,71 @@ struct ArrayMet : public IMet {
     }
 
     // Calculate the height fraction of altitude between Z[k_below] and Z[k_below + 1]
-    constexpr double calc_interp_fraction(const double altitude, const int k_below) {
+    constexpr double calc_z_interp_frac(const double altitude, const int k_below) {
         return (altitude - Z[k_below]) / (Z[k_below + 1] - Z[k_below]);
     }
 
-    // Interpolate P array logarithmically given grid cell index below altitude (k_below) and
-    // height fraction of altitude between grid cell centres (interp_fraction)
-    constexpr double interp_P(const int k_below, const double interp_fraction) {
-        return (
-            std::pow(P[k_below], 1 - interp_fraction)
-            * std::pow(P[k_below + 1], interp_fraction)
-        );
+    // Calculate the pressure fraction of altitude between P[k_below] and P[k_below + 1]
+    constexpr double calc_pres_interp_frac(const double altitude, const int k_below) {
+        return (interp_P(altitude, k_below) - P[k_below]) / (P[k_below + 1] - P[k_below]);
     }
 
-    // Interpolate T_POT array linearly given grid cell index below altitude (k_below) and
-    // height fraction of altitude between grid cell centres (interp_fraction)
-    constexpr double interp_T_POT(const int k_below, const double interp_fraction) {
-        return (T_POT[k_below] + interp_fraction * (T_POT[k_below + 1] - T_POT[k_below]));
+    // Interpolate P array logarithmically against linear Z given altitude and grid cell index
+    // below altitude (k_below)
+    constexpr double interp_P(const double altitude, const int k_below) {
+        double z_interp_frac = calc_z_interp_frac(altitude, k_below);
+        return P[k_below] * std::pow(P[k_below + 1] / P[k_below], z_interp_frac);
     }
 
-    // Interpolate QV array linearly given grid cell index below altitude (k_below) and
-    // height fraction of altitude between grid cell centres (interp_fraction)
-    constexpr double interp_QV(const int k_below, const double interp_fraction) {
-        return (QV[k_below] + interp_fraction * (QV[k_below + 1] - QV[k_below]));
+    // Interpolate temperature linearly against either linear altitude or (if use_pres) linear
+    // pressure given altitude and grid cell index below altitude (k_below)
+    double interp_T(const double altitude, const int k_below, const bool use_pres = false);
+
+    // Interpolate QV array either logarithmically against linear altitude or (if use_pres)
+    // linearly against linear pressure given altitude and grid cell index below altitude (k_below)
+    // If either of the grid cell QV values is <= 0, will interpolate linearly in altitude
+    constexpr double interp_QV(const double altitude, const int k_below,
+        const bool use_pres = false)
+    {
+        if (QV[k_below] <= 0 || QV[k_below + 1] <= 0) {
+            double interp_frac = calc_z_interp_frac(altitude, k_below);
+            return QV[k_below] + (QV[k_below + 1] - QV[k_below]) * interp_frac;
+        }
+        if (use_pres) {
+            double interp_frac = calc_pres_interp_frac(altitude, k_below);
+            return QV[k_below] + (QV[k_below + 1] - QV[k_below]) * interp_frac;
+        }
+        double interp_frac = calc_z_interp_frac(altitude, k_below);
+        return QV[k_below] * std::pow(QV[k_below + 1] / QV[k_below], interp_frac);
     }
 
-    // Interpolate U array linearly given grid cell index below altitude (k_below) and
-    // height fraction of altitude between grid cell centres (interp_fraction)
-    constexpr double interp_U(const int k_below, const double interp_fraction) {
-        return (U[k_below] + interp_fraction * (U[k_below + 1] - U[k_below]));
+    // Interpolate U array linearly against either linear altitude or (if use_pres) linear
+    // pressure given altitude and grid cell index below altitude (k_below)
+    constexpr double interp_U(const double altitude, const int k_below,
+        const bool use_pres = false)
+    {
+        double interp_frac = (use_pres)
+            ? calc_pres_interp_frac(altitude, k_below)
+            : calc_z_interp_frac(altitude, k_below);
+        return U[k_below] + (U[k_below + 1] - U[k_below]) * interp_frac;
     }
 
-    // Interpolate V array linearly given grid cell index below altitude (k_below) and
-    // height fraction of altitude between grid cell centres (interp_fraction)
-    constexpr double interp_V(const int k_below, const double interp_fraction) {
-        return (V[k_below] + interp_fraction * (V[k_below + 1] - V[k_below]));
+    // Interpolate V array linearly against either linear altitude or (if use_pres) linear
+    // pressure given altitude and grid cell index below altitude (k_below)
+    constexpr double interp_V(const double altitude, const int k_below,
+        const bool use_pres = false)
+    {
+        double interp_frac = (use_pres)
+            ? calc_pres_interp_frac(altitude, k_below)
+            : calc_z_interp_frac(altitude, k_below);
+        return V[k_below] + (V[k_below + 1] - V[k_below]) * interp_frac;
     }
 
     void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
-        double& air_temperature_sed, double& specific_humidity_sed) override;
+        double& air_temperature_sed, double& specific_humidity_sed, const Params& params) override;
 
 private:
-    void get_local_values(const double altitude) override;
+    void get_local_values(const double altitude, const Params& params) override;
 
     // Equivalent to pycontrails' tau_cirrus
     double calc_tau_cirrus(const double altitude) const override;
@@ -190,10 +213,11 @@ struct SimpleMet : public IMet {
     }
 
     void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
-        double& air_temperature_sed, double& specific_humidity_sed) override;
+        double& air_temperature_sed, double& specific_humidity_sed,
+        const Params& /*params (unused)*/) override;
 
 private:
-    void get_local_values(const double altitude) override;
+    void get_local_values(const double altitude, const Params& /*params (unused)*/) override;
 
     double calc_tau_cirrus(const double /*altitude (unused)*/) const override {
         return 0;

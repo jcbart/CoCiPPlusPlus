@@ -22,7 +22,7 @@ void IMet::calc_variables(const CoCiPTime& datetime, const double altitude, cons
     specific_humidity_old = specific_humidity;
 
     // Get met type-derived values
-    get_local_values(altitude);
+    get_local_values(altitude, params);
 
     air_temperature += cumul_heat;
 
@@ -138,51 +138,50 @@ void ArrayMet<arrayType>::check_valid_arrays() const {
 }
 
 template <typename arrayType>
-void ArrayMet<arrayType>::get_sedimented_values(const double altitude_sed,
-    double& air_pressure_sed, double& air_temperature_sed, double& specific_humidity_sed) {
-    
-    int k_below_sed = find_k_below(altitude_sed);
-    double interp_fraction_sed = calc_interp_fraction(altitude_sed, k_below_sed);
-    air_pressure_sed = interp_P(k_below_sed, interp_fraction_sed);
-    air_temperature_sed = thermo::T_from_T_potential(
-        interp_T_POT(k_below_sed, interp_fraction_sed), air_pressure_sed
-    );
-    specific_humidity_sed = interp_QV(k_below_sed, interp_fraction_sed);
+double ArrayMet<arrayType>::interp_T(const double altitude, const int k_below, const bool use_pres) {
+    double T_below = thermo::T_from_T_potential(T_POT[k_below], P[k_below]);
+    double T_above = thermo::T_from_T_potential(T_POT[k_below + 1], P[k_below + 1]);
+    double interp_frac = (use_pres)
+        ? calc_pres_interp_frac(altitude, k_below)
+        : calc_z_interp_frac(altitude, k_below);
+    return T_below + (T_above - T_below) * interp_frac;
 }
 
 template <typename arrayType>
-void ArrayMet<arrayType>::get_local_values(const double altitude) {
+void ArrayMet<arrayType>::get_sedimented_values(const double altitude_sed,
+    double& air_pressure_sed, double& air_temperature_sed, double& specific_humidity_sed,
+    const Params& params) {
+    
+    int k_below_sed = find_k_below(altitude_sed);
+    air_pressure_sed = interp_P(altitude_sed, k_below_sed);
+    air_temperature_sed = interp_T(altitude_sed, k_below_sed, params.interp_with_pressure);
+    specific_humidity_sed = interp_QV(altitude_sed, k_below_sed, params.interp_with_pressure);
+}
+
+template <typename arrayType>
+void ArrayMet<arrayType>::get_local_values(const double altitude, const Params& params) {
     
     //check_valid_arrays();
 
     // Find index of grid cell centre below altitude
     int k_below = find_k_below(altitude);
 
-    // Find height fraction of altitude between grid cell centres
-    double interp_fraction = calc_interp_fraction(altitude, k_below);
-
     // Interpolate values
-    air_pressure = interp_P(k_below, interp_fraction);
-    air_temperature = thermo::T_from_T_potential(
-        interp_T_POT(k_below, interp_fraction), air_pressure
-    );
-    specific_humidity = interp_QV(k_below, interp_fraction);
-    u_wind = interp_U(k_below, interp_fraction);
-    v_wind = interp_V(k_below, interp_fraction);
+    air_pressure = interp_P(altitude, k_below);
+    air_temperature = interp_T(altitude, k_below, params.interp_with_pressure);
+    specific_humidity = interp_QV(altitude, k_below, params.interp_with_pressure);
+    u_wind = interp_U(altitude, k_below, params.interp_with_pressure);
+    v_wind = interp_V(altitude, k_below, params.interp_with_pressure);
 
-    // Find index of grid cell centre dz_m below altitude
-    int k_below_lower = find_k_below(altitude - dz_m);
-
-    // Find height fraction of altitude between grid cell centres
-    double interp_fraction_lower = calc_interp_fraction(altitude - dz_m, k_below_lower);
+    double altitude_lower = altitude - dz_m;
+    // Find index of grid cell centre below altitude_lower
+    int k_below_lower = find_k_below(altitude_lower);
 
     // Interpolate lower values
-    air_pressure_lower = interp_P(k_below_lower, interp_fraction_lower);
-    air_temperature_lower = thermo::T_from_T_potential(
-        interp_T_POT(k_below_lower, interp_fraction_lower), air_pressure_lower
-    );
-    u_wind_lower = interp_U(k_below_lower, interp_fraction_lower);
-    v_wind_lower = interp_V(k_below_lower, interp_fraction_lower);
+    air_pressure_lower = interp_P(altitude_lower, k_below_lower);
+    air_temperature_lower = interp_T(altitude_lower, k_below_lower, params.interp_with_pressure);
+    u_wind_lower = interp_U(altitude_lower, k_below_lower, params.interp_with_pressure);
+    v_wind_lower = interp_V(altitude_lower, k_below_lower, params.interp_with_pressure);
 
     effective_vertical_resolution = Z[k_below + 1] - Z[k_below];
 }
@@ -200,8 +199,7 @@ double ArrayMet<arrayType>::calc_tau_cirrus(const double altitude) const {
             thermo::T_from_T_potential(T_POT[i], P[i]),
             P[i]
         );
-        double dz = tau_cirrus::height_to_geopt_height(Z_AT_W[i+1])
-                    - tau_cirrus::height_to_geopt_height(Z_AT_W[i]);
+        double dz = Z_AT_W[i+1] - Z_AT_W[i];
         cumsum += beta_e * dz;
     }
     return cumsum;
@@ -210,7 +208,8 @@ double ArrayMet<arrayType>::calc_tau_cirrus(const double altitude) const {
 // SimpleMet
 
 void SimpleMet::get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
-    double& air_temperature_sed, double& specific_humidity_sed) {
+    double& air_temperature_sed, double& specific_humidity_sed,
+    const Params& /*params (unused)*/) {
     
     air_temperature_sed = T0 - lapse_rate * (altitude_sed - z0);
 
@@ -233,7 +232,7 @@ void SimpleMet::get_sedimented_values(const double altitude_sed, double& air_pre
     specific_humidity_sed = rh_i_temp * thermo::q_sat_ice(air_temperature_sed, air_pressure_sed);
 }
 
-void SimpleMet::get_local_values(const double altitude) {
+void SimpleMet::get_local_values(const double altitude, const Params& /*params (unused)*/) {
     // Remove cmath and constants and move to thermo
 
     air_temperature = T0 - lapse_rate * (altitude - z0);

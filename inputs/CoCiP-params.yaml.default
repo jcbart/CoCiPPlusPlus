@@ -1,8 +1,11 @@
 # CoCiP runtime parameters
 
-# For definitions, see
+# For most definitions, see
 # https://github.com/contrailcirrus/pycontrails/blob/main/pycontrails/models/cocip/cocip_params.py
-# "None" fields should be "null", "~", or omitted from the yaml
+# "None" fields should be empty, "null", "~", or omitted from the yaml
+
+# For ArrayMet, interpolate against linear pressure like pycontrails instead of linear altitude
+interp_with_pressure: true
 
 dz_m: 200
 

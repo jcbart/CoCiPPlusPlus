@@ -24,6 +24,9 @@ constexpr double RADIUS_EARTH = 6371229;
 // Standard surface pressure (Pa)
 constexpr double P_SURFACE = 101325;
 
+// Reference pressure for potential temperature (Pa)
+constexpr double P_REF = 1e5;
+
 // Isobaric heat capacity of dry air (J kg-1 K-1)
 constexpr double c_pd = 1004;
 

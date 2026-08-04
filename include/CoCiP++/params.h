@@ -6,6 +6,9 @@
 struct Params {
     bool isInitialised = false;
 
+    // For ArrayMet, interpolate against linear pressure like pycontrails instead of linear altitude
+    bool interp_with_pressure;
+
     // Difference in altitude used for calculating potential temperature gradient and wind shear (m)
     double dz_m;
 

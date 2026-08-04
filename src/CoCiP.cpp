@@ -260,7 +260,7 @@ void CoCiP<MetType>::calc_timestep_contrail_evolution(const double length_ratio,
         // Get values at that altitude
         double air_pressure_sed, air_temperature_sed, specific_humidity_sed;
         met->get_sedimented_values(altitude_sed, air_pressure_sed, air_temperature_sed,
-            specific_humidity_sed);
+            specific_humidity_sed, *params);
         double q_sat_sed = thermo::q_sat_ice(air_temperature_sed, air_pressure_sed);
         double plume_mass_per_m_sed = contrail_properties::plume_mass_per_distance(area_eff_old,
             thermo::rho_d(air_temperature_sed, air_pressure_sed));
