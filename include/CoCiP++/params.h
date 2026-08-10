@@ -2,6 +2,7 @@
 #define PARAMS_H
 
 #include <vector>
+#include <optional>
 
 struct Params {
     bool isInitialised = false;
@@ -11,6 +12,10 @@ struct Params {
 
     // Difference in altitude used for calculating potential temperature gradient and wind shear (m)
     double dz_m;
+
+    // Vertical resolution of met data (m)
+    // If not provided, will be found from geopotential height
+    std::optional<double> effective_vertical_resolution;
 
     // Initial wake vortex depth scaling factor
     // This factor scales max contrail downward displacement after the wake vortex phase

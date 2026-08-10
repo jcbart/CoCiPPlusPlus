@@ -173,7 +173,9 @@ void ArrayMet<arrayType>::get_local_values(const double altitude, const Params& 
     u_wind = interp_U(altitude, k_below, params.interp_with_pressure);
     v_wind = interp_V(altitude, k_below, params.interp_with_pressure);
 
+    // Altitude lower (not same method as pycontrails, but gives very similar result)
     double altitude_lower = altitude - dz_m;
+
     // Find index of grid cell centre below altitude_lower
     int k_below_lower = find_k_below(altitude_lower);
 
@@ -183,7 +185,10 @@ void ArrayMet<arrayType>::get_local_values(const double altitude, const Params& 
     u_wind_lower = interp_U(altitude_lower, k_below_lower, params.interp_with_pressure);
     v_wind_lower = interp_V(altitude_lower, k_below_lower, params.interp_with_pressure);
 
-    effective_vertical_resolution = Z[k_below + 1] - Z[k_below];
+    // Find effective vertical resolution if not given in params
+    effective_vertical_resolution = (params.effective_vertical_resolution.has_value())
+        ? *params.effective_vertical_resolution
+        : Z[k_below + 1] - Z[k_below];
 }
 
 template <typename arrayType>
@@ -232,7 +237,7 @@ void SimpleMet::get_sedimented_values(const double altitude_sed, double& air_pre
     specific_humidity_sed = rh_i_temp * thermo::q_sat_ice(air_temperature_sed, air_pressure_sed);
 }
 
-void SimpleMet::get_local_values(const double altitude, const Params& /*params (unused)*/) {
+void SimpleMet::get_local_values(const double altitude, const Params& params) {
     // Remove cmath and constants and move to thermo
 
     air_temperature = T0 - lapse_rate * (altitude - z0);
@@ -268,4 +273,8 @@ void SimpleMet::get_local_values(const double altitude, const Params& /*params (
     v_wind = 0;
     u_wind_lower = 0;
     v_wind_lower = -ds_dz_cross_track * dz_m;
+
+    effective_vertical_resolution = (params.effective_vertical_resolution.has_value())
+        ? *params.effective_vertical_resolution
+        : 0;
 }

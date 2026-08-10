@@ -34,7 +34,7 @@ struct IMet {
     double u_wind_lower; // Eastward wind (m s-1) at grid cell below
     double v_wind_lower; // Northward wind (m s-1) at grid cell below
 
-    double effective_vertical_resolution; // Effective vertical resolution of met data (m)
+    double effective_vertical_resolution; // Effective vertical resolution of met data (m); calculated if not provided by params
 
     // Values calculated
     double dtheta_dz = 0; // Potential temperature gradient (K m-1) (dT_dz in pycontrails)
@@ -104,7 +104,7 @@ struct ArrayMet : public IMet {
         return -1;
     }
 
-    // Find the vertical index k of the grid cell centre below the contrail altitude
+    // Find the vertical index k of the grid cell centre below altitude
     // Will fail if altitude is not in Z range
     int find_k_below(const double altitude) const {
         for (int k_trial = 0; k_trial < vsize-1; k_trial++) {
@@ -133,8 +133,8 @@ struct ArrayMet : public IMet {
     // Interpolate P array logarithmically against linear Z given altitude and grid cell index
     // below altitude (k_below)
     constexpr double interp_P(const double altitude, const int k_below) {
-        double z_interp_frac = calc_z_interp_frac(altitude, k_below);
-        return P[k_below] * std::pow(P[k_below + 1] / P[k_below], z_interp_frac);
+        double interp_frac = calc_z_interp_frac(altitude, k_below);
+        return P[k_below] * std::pow(P[k_below + 1] / P[k_below], interp_frac);
     }
 
     // Interpolate temperature linearly against either linear altitude or (if use_pres) linear
@@ -207,17 +207,14 @@ struct SimpleMet : public IMet {
     SimpleMet(double dz_m, double z0, double P0, double T0, double lapse_rate, double rh_i1,
         double rh_i0, double D1, double DT, double ds_dz_cross_track)
         : IMet(dz_m), z0(z0), P0(P0), T0(T0), lapse_rate(lapse_rate), rh_i1(rh_i1), rh_i0(rh_i0),
-          D1(D1), DT(DT), ds_dz_cross_track(ds_dz_cross_track) {
-    
-        effective_vertical_resolution = 0;
-    }
+          D1(D1), DT(DT), ds_dz_cross_track(ds_dz_cross_track) {}
 
     void get_sedimented_values(const double altitude_sed, double& air_pressure_sed,
         double& air_temperature_sed, double& specific_humidity_sed,
         const Params& /*params (unused)*/) override;
 
 private:
-    void get_local_values(const double altitude, const Params& /*params (unused)*/) override;
+    void get_local_values(const double altitude, const Params& params) override;
 
     double calc_tau_cirrus(const double /*altitude (unused)*/) const override {
         return 0;

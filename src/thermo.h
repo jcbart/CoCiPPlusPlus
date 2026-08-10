@@ -94,6 +94,12 @@ constexpr double rh_i(double q, double T, double P) {
     return ((q * P) / (constants::EPSILON * e_sat_ice(T)));
 }
 
+// Calculate the pressure altitude dz_m below pressure P
+constexpr double pressure_dz(double T, double P, double dz_m) {
+    double dP = rho_d(T, P) * constants::GRAVITY * dz_m;
+    return std::min(P + dP, constants::P_SURFACE);
+}
+
 // Calculate potential temperature (K) given temperature (K) and air pressure (Pa)
 constexpr double T_potential(double T, double P) {
     return T * std::pow(constants::P_SURFACE / P, constants::R_d / constants::c_pd);

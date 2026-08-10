@@ -9,6 +9,10 @@ interp_with_pressure: true
 
 dz_m: 200
 
+# pycontrails uses 2000 m as a fixed value by default
+# If not provided, will be found from geopotential height for ArrayMet (0 for SimpleMet) 
+effective_vertical_resolution: 
+
 initial_wake_vortex_depth: 0.5
 
 turbulent_vertical_velocity_scale: 0.1

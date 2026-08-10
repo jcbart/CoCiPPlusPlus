@@ -67,7 +67,9 @@ The static library can be used to include CoCiP++ in another project.
 
 Include the headers in `include/CoCiP++`.
 
-Declare a `CoCiP` object.
+Declare a `CoCiP<MetType>` object where `MetType` is one of:
+1. `SimpleMet`
+2. `ArrayMet<arrayType>` where `arrayType` is `float` or `double`
 
 Assign a shared pointer to a `Params` object to `CoCiP::params` and a unique pointer to a derived `IMet` object (e.g. `ArrayMet`) to `CoCiP::met` respectively.
 
@@ -79,13 +81,17 @@ If `CoCiP::sac` is true, call `CoCiP::simulate_wake_vortex_downwash`, then `CoCi
 
 If `CoCiP::persistent` is true, call `CoCiP::process_downwash_flight` passing the segment heading angle.
 
-In a loop, advect the plume location, update the meterological variables, time, and location, then call `CoCiP::evolve` passing the segment length ratio, the segment heading angle, and the time step duration. End the loop is `CoCiP::persistent` is not true.
+In a loop, advect the plume location, update the meterological variables, time, and location, then call `CoCiP::evolve` passing the segment length ratio, the segment heading angle, and the time step duration. End the loop if `CoCiP::persistent` is not true.
 
 ### Notes
 
 CoCiP++ is location agnostic. It does not advect the plume internally; this behaviour must be driven externally. The time and location are used solely to estimate solar direct radiation.
 
-The plume will sediment and and alter `CoCiP::altitude`, so ensure that advection does not overwrite this alteration.
+The plume will sediment and alter `CoCiP::altitude` during `evolve`, so ensure that advection takes this alteration into account.
+
+The parameters in `CoCiP-params.yaml` generally reflect those in pycontrails' [`cocip_params.py`](https://github.com/contrailcirrus/pycontrails/blob/main/pycontrails/models/cocip/cocip_params.py) except for:
+- `interp_with_pressure`: if true, will interpolate temperature, specific humidity, and wind linearly against linear pressure (matching pycontrails) and, if false, interpolate against linear geopotential height; and
+- `effective_vertical_resolution`: may be null in CoCiP++ in which case the actual vertical resolution of the met data will be used (only applicable with `ArrayMet`).
 
 ## Features
 
@@ -103,4 +109,4 @@ This project has been developed by Jack Bartlett.
 
 The original CoCiP model was developed by Ulrich Schumann and detailed in [Schumann (2012)](https://doi.org/10.5194/gmd-5-543-2012).
 
-Acknowledgement for the transliterated code is directed to [pycontrails](https://github.com/contrailcirrus/pycontrails/).
+Most code in CoCiP++ has been translitered from [pycontrails](https://github.com/contrailcirrus/pycontrails/). Credit for this code is directed to them.
